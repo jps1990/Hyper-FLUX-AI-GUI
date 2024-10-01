@@ -14,7 +14,8 @@
     "axios": "^1.7.7",
     "dotenv": "^10.0.0",
     "electron": "^32.1.2",
-    "replicate": "^0.34.0"
+    "replicate": "^0.34.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "electron-builder": "^25.0.5",

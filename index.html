@@ -4,418 +4,438 @@
 <head>
     <meta charset="UTF-8">
     <!-- Content Security Policy mise à jour pour autoriser Google Fonts, styles inline et images depuis replicate.delivery -->
-   <meta http-equiv="Content-Security-Policy" content="
-		default-src 'self';
-		script-src 'self' 'unsafe-inline';
-		style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-		font-src 'self' https://fonts.gstatic.com;
-		img-src 'self' https://replicate.delivery;
-		connect-src 'self' https://replicate.delivery;">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' https://replicate.delivery;
+        connect-src 'self' https://replicate.delivery;">
  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hyper FLUX WebUI</title>
-		<style>
-		/* Importation de la police Orbitron depuis Google Fonts */
-		@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    <style>
+        /* Importation de la police Orbitron depuis Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        
+        /* Variables pour les couleurs */
+        :root {
+            --primary-color: #8A2BE2;
+            --secondary-color: #4B0082;
+            --accent-color: #00FFFF;
+            --background-color: #0A0A0A;
+            --text-color: #E0E0E0;
+            --hover-glow: rgba(0, 255, 255, 0.5); /* Glow cyan */
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.2) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(75, 0, 130, 0.2) 0%, transparent 20%);
+            background-attachment: fixed;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            font-size: 3em;
+            text-shadow: 0 0 10px var(--accent-color);
+            margin-top: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background-color: rgba(10, 10, 10, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-section {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: relative; /* For positioning loading */
+        }
+
+        label {
+            display: block;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            width: 95%; /* Largeur du label */
+        }
+
+        p {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        /* Style pour les boîtes de texte et select avec effet de glow au survol */
+        input,
+        select,
+        button,
+        textarea {
+            width: 95%; /* Alignement des champs */
+            padding: 10px;
+            margin-top: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--secondary-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--hover-glow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            max-height: 400px;
+        }
+
+        /* Faders (sliders) personnalisés */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .slider-container input[type="range"] {
+            width: 80%; /* Prendre 80% de la largeur */
+            margin-right: 10px;
+        }
+
+        .slider-container input[type="number"] {
+            width: 15%; /* Prendre 15% de la largeur */
+            color: white;
+        }
+
+        /* Style pour les boutons avec glow au survol */
+        button {
+            background-color: var(--primary-color); /* Change la couleur de fond en utilisant le même mauve que le texte */
+            color: var(--text-color); /* Assure que le texte des boutons reste de la même couleur que le texte global */
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 5px;
+            border: none; /* Enlève les bordures par défaut */
+            border-radius: 6px; /* Ajuste la bordure si besoin */
+            padding: 10px 20px;
+            box-shadow: 0 0 10px var(--primary-color); /* Glow mauve autour des boutons */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color); /* Effet de hover en cyan */
+            box-shadow: 0 0 15px var(--accent-color); /* Glow cyan lors du hover */
+        }
+
+        #output {
+            position: relative; /* Conteneur pour que le loading se place correctement */
+            width: 100%;
+            height: 75%;
+            border: 2px dashed var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Assure que l'image reste en haut */
+            border-radius: 10px;
+            min-height: 300px;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+
+        #output img {
+            max-width: 100%; /* L'image ne dépasse pas 100% de la largeur de la boîte */
+            max-height: 100%; /* Ajuste la hauteur pour rester dans la boîte */
+            object-fit: contain; /* Assure que l'image garde son ratio et s'ajuste dans la boîte */
+            margin-top: 0; /* L'image reste en haut de la boîte */
+            margin-right: auto; /* Pour garder l'image vers la droite */
+        }
+
+        #loading {
+            display: none;
+            position: absolute;
+            top: 50%; /* Centre verticalement */
+            left: 50%; /* Centre horizontalement */
+            transform: translate(-50%, -50%); /* Centre le div de chargement */
+            text-align: center;
+            z-index: 1; /* Assure que le texte soit visible */
+        }
+
+        #loading p {
+            margin: 0;
+        }
+
+        /* Styles pour les listes de Prompts, Lora Links, et Seeds */
+        #savedPromptsList, #savedLoraLinksList, #savedSeedsList {
+            list-style-type: none; /* Enlever les puces */
+            padding: 0;
+        }
+
+        #savedPromptsList li, #savedLoraLinksList li, #savedSeedsList li {
+            padding: 8px;
+            margin-bottom: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #savedPromptsList li:hover, #savedLoraLinksList li:hover, #savedSeedsList li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #savedPromptsList li button, #savedLoraLinksList li button, #savedSeedsList li button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        #savedPromptsList li button:hover, #savedLoraLinksList li button:hover, #savedSeedsList li button:hover {
+            background-color: darkred;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 255, 255, 0.1);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: var(--accent-color);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Boutons et leur positionnement */
+        .button-wrapper {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start; /* Aligne les boutons à gauche */
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 10px;
+            width: 95%; /* Prend 95% de la largeur du parent */
+        }
+
+        .button-wrapper button {
+            flex: 1; /* Chaque bouton prend une part égale de l'espace disponible */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 10px 15px; /* Ajustez selon vos besoins */
+            min-width: 0; /* Permet aux boutons de rétrécir si nécessaire */
+        }
 		
+		/* Ajouté pour la disposition de la seed */
+		.seed-container {
+			display: flex;
+			flex-direction: column; /* Place les éléments en colonne */
+			align-items: flex-start; /* Aligne les éléments à gauche */
+			margin-top: 10px; /* Espace au-dessus */
+		}
+
+		.seed-container input[type="number"] {
+			width: 95%; /* Prend toute la largeur */
+			margin-top: 5px; /* Espace au-dessus */
+		}
+
 		
-		  /* Couleur blanche pour les valeurs affichées */
-			  input[type="number"] {
-				  color: white;
-			  }
-			  span {
-				  color: white;
-			  }
-		
-		/* Variables pour les couleurs */
-		:root {
-			--primary-color: #8A2BE2;
-			--secondary-color: #4B0082;
-			--accent-color: #00FFFF;
-			--background-color: #0A0A0A;
-			--text-color: #E0E0E0;
-			--hover-glow: rgba(0, 255, 255, 0.5); /* Glow cyan */
-		}
+        /* Remove yellow focus ring when clicking on elements */
+        select:focus,
+        input:focus,
+        button:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
 
-		body {
-			font-family: 'Orbitron', sans-serif;
-			background-color: var(--background-color);
-			color: var(--text-color);
-			margin: 0;
-			padding: 0;
-			min-height: 100vh;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			background-image:
-				radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.2) 0%, transparent 20%),
-				radial-gradient(circle at 90% 80%, rgba(75, 0, 130, 0.2) 0%, transparent 20%);
-			background-attachment: fixed;
-		}
+        /* Styles pour les options du menu déroulant */
+        select {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--secondary-color);
+            color: var(--primary-color);
+            padding: 10px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
 
-		h1 {
-			color: var(--accent-color);
-			text-align: center;
-			font-size: 3em;
-			text-shadow: 0 0 10px var(--accent-color);
-			margin-top: 20px;
-		}
+        select:focus {
+            box-shadow: 0 0 10px var(--accent-color);
+            border-color: var(--accent-color);
+            outline: none;
+        }
 
-		.container {
-			width: 90%;
-			max-width: 1200px;
-			background-color: rgba(10, 10, 10, 0.8);
-			border-radius: 15px;
-			padding: 30px;
-			box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-			backdrop-filter: blur(10px);
-			display: flex;
-			flex-direction: row;
-			gap: 30px;
-			margin-bottom: 20px;
-			flex-wrap: wrap;
-		}
+        option {
+            background-color: var(--background-color);
+            color: var(--primary-color);
+        }
 
-		.input-section {
-			flex: 1;
-			max-width: 600px;
-		}
+        option:hover,
+        option:focus {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
 
-		.output-section {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-start;
-			align-items: center;
-		}
+        select[disabled] {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.3);
+        }
 
-		label {
-			display: flex;
-			justify-content: space-between;
-			color: var(--primary-color);
-			font-weight: bold;
-			margin-top: 10px;
-			margin-bottom: 5px;
-			width: 95%; /* Largeur du label */
-		}
+        /* Style boutons radio */
+        input[type="radio"] {
+            appearance: none;
+            background-color: var(--background-color);
+            border: 2px solid var(--secondary-color);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
 
-		p {
-			color: var(--primary-color);
-			font-weight: bold;
-			margin-top: 10px;
-			margin-bottom: 5px;
-		}
+        input[type="radio"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
 
-		/* Style pour les boîtes de texte et select avec effet de glow au survol */
-		input,
-		select,
-		button,
-		textarea {
-			width: 95%; /* Alignement des champs */
-			padding: 10px;
-			margin-top: 5px;
-			background-color: rgba(255, 255, 255, 0.1);
-			border: 2px solid var(--secondary-color);
-			border-radius: 6px;
-			color: var(--text-color);
-			transition: all 0.3s ease;
-		}
+        input[type="radio"]:hover,
+        input[type="radio"]:focus {
+            background-color: var(--hover-glow);
+            border-color: var(--hover-glow);
+        }
 
-		input:focus,
-		select:focus,
-		textarea:focus {
-			border-color: var(--accent-color);
-			box-shadow: 0 0 15px var(--hover-glow);
-		}
+        /* Personnalisation des faders (sliders) */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #4B0082; /* Couleur de la ligne du fader */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .15s ease-in-out;
+        }
 
-		textarea {
-			resize: vertical;
-			min-height: 100px;
-			max-height: 400px;
-		}
+        input[type="range"]:hover {
+            opacity: 1;
+        }
 
-		/* Faders (sliders) personnalisés */
-		input[type="range"] {
-			width: 95%; /* Ajustement de la largeur */
-			margin-bottom: 15px;
-		}
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #8A2BE2; /* Couleur du curseur du fader */
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00FFFF; /* Effet de glow cyan autour du curseur */
+        }
 
-		input[type="range"]::-webkit-slider-runnable-track {
-			background: #000000; /* Ligne du fader noir */
-			height: 5px;
-			border-radius: 5px;
-		}
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #8A2BE2;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00FFFF;
+        }
 
-		input[type="range"]::-webkit-slider-thumb {
-			background: var(--primary-color); /* Curseur mauve */
-			border: none;
-			height: 20px;
-			width: 20px;
-			border-radius: 50%;
-			margin-top: -7px;
-			cursor: pointer;
-			-webkit-appearance: none;
-			appearance: none;
-		}
-
-		input[type="range"]:hover::-webkit-slider-thumb {
-			background: var(--accent-color); /* Change en cyan au survol */
-		}
-
-		input[type="range"]::-moz-range-thumb {
-			background: var(--primary-color);
-			border: none;
-			height: 20px;
-			width: 20px;
-			border-radius: 50%;
-			cursor: pointer;
-		}
-
-		input[type="range"]::-moz-range-track {
-			background: #000000;
-			height: 5px;
-		}
-
-		/* Style pour les boutons avec glow au survol */
-		button {
-			background-color: var(--primary-color); /* Change la couleur de fond en utilisant le même mauve que le texte */
-			color: var(--text-color); /* Assure que le texte des boutons reste de la même couleur que le texte global */
-			cursor: pointer;
-			font-weight: bold;
-			text-transform: uppercase;
-			margin-top: 5px;
-			border: none; /* Enlève les bordures par défaut */
-			border-radius: 6px; /* Ajuste la bordure si besoin */
-			padding: 10px 20px;
-			box-shadow: 0 0 10px var(--primary-color); /* Glow mauve autour des boutons */
-			transition: background-color 0.3s ease, box-shadow 0.3s ease;
-		}
-
-		button:hover {
-			background-color: var(--accent-color); /* Effet de hover en cyan */
-			box-shadow: 0 0 15px var(--accent-color); /* Glow cyan lors du hover */
-		}
-
-
-		#output {
-			position: relative; /* Conteneur pour que le loading se place correctement */
-			width: 100%;
-			height: 75%;
-			border: 2px dashed var(--accent-color);
-			display: flex;
-			justify-content: center;
-			align-items: flex-start; /* Assure que l'image reste en haut */
-			border-radius: 10px;
-			min-height: 300px;
-			flex-wrap: wrap;
-			padding: 10px;
-		}
-
-		#output img {
-			max-width: 100%; /* L'image ne dépasse pas 100% de la largeur de la boîte */
-			max-height: 100%; /* Ajuste la hauteur pour rester dans la boîte */
-			object-fit: contain; /* Assure que l'image garde son ratio et s'ajuste dans la boîte */
-			margin-top: 0; /* L'image reste en haut de la boîte */
-			margin-right: auto; /* Pour garder l'image vers la droite */
-		}
-
-
-
-		#loading {
-			display: none;
-			position: absolute;
-			top: 50%; /* Centre verticalement */
-			left: 75%; /* Positionné à 75% du bord gauche */
-			transform: translate(-50%, -50%); /* Permet de centrer par rapport à la position */
-			text-align: center;
-			z-index: 1; /* Assure que le texte soit visible */
-		}
-
-		#loading p {
-			margin: 0;
-		}
-
-
-
-		.spinner {
-			border: 4px solid rgba(0, 255, 255, 0.1);
-			border-left-color: var(--accent-color);
-			border-radius: 50%;
-			width: 40px;
-			height: 40px;
-			animation: spin 1s linear infinite;
-			margin: 20px auto;
-		}
-
-		@keyframes spin {
-			0% {
-				transform: rotate(0deg);
-			}
-
-			100% {
-				transform: rotate(360deg);
-			}
-		}
-
-		footer {
-			text-align: center;
-			margin-bottom: 20px;
-			font-size: 0.9em;
-			color: var(--accent-color);
-		}
-
-		.tooltip {
-			position: relative;
-			display: inline-block;
-			cursor: pointer;
-			margin-left: 5px;
-		}
-
-		.tooltip .tooltiptext {
-			visibility: hidden;
-			width: 300px;
-			background-color: var(--secondary-color);
-			color: #fff;
-			text-align: left;
-			border-radius: 6px;
-			padding: 10px;
-			position: absolute;
-			z-index: 1;
-			bottom: 125%;
-			left: 50%;
-			margin-left: -150px;
-			opacity: 0;
-			transition: opacity 0.3s;
-		}
-
-		.tooltip:hover .tooltiptext {
-			visibility: visible;
-			opacity: 1;
-		}
-
-		/* Boutons et leur positionnement */
-		.button-wrapper {
-			margin-top: 10px;
-			display: flex;
-			justify-content: space-between;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
-
-		/* Remove yellow focus ring when clicking on elements */
-		select:focus,
-		input:focus,
-		button:focus,
-		textarea:focus {
-			outline: none;
-			box-shadow: 0 0 10px var(--accent-color);
-		}
-
-		/* Styles pour les options du menu déroulant */
-		select {
-			background-color: rgba(255, 255, 255, 0.1);
-			border: 2px solid var(--secondary-color);
-			color: var(--primary-color);
-			padding: 10px;
-			border-radius: 6px;
-			transition: all 0.3s ease;
-		}
-
-		select:focus {
-			box-shadow: 0 0 10px var(--accent-color);
-			border-color: var(--accent-color);
-			outline: none;
-		}
-
-		option {
-			background-color: var(--background-color);
-			color: var(--primary-color);
-		}
-
-		option:hover,
-		option:focus {
-			background-color: var(--primary-color);
-			color: var(--text-color);
-		}
-
-		select[disabled] {
-			background-color: rgba(255, 255, 255, 0.05);
-			color: rgba(255, 255, 255, 0.3);
-		}
-
-		/* Style boutons radio */
-		input[type="radio"] {
-			appearance: none;
-			background-color: var(--background-color);
-			border: 2px solid var(--secondary-color);
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			position: relative;
-			cursor: pointer;
-			transition: background-color 0.3s ease, border-color 0.3s ease;
-		}
-
-		input[type="radio"]:checked {
-			background-color: var(--primary-color);
-			border-color: var(--primary-color);
-		}
-
-		input[type="radio"]:hover,
-		input[type="radio"]:focus {
-			background-color: var(--hover-glow);
-			border-color: var(--hover-glow);
-		}
-	
-		/* Personnalisation des faders (sliders) */
-		input[type="range"] {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 95%;
-			height: 8px;
-			background: #4B0082; /* Couleur de la ligne du fader */
-			border-radius: 5px;
-			outline: none;
-			opacity: 0.7;
-			transition: opacity .15s ease-in-out;
-		}
-
-		input[type="range"]:hover {
-			opacity: 1;
-		}
-
-		input[type="range"]::-webkit-slider-thumb {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 20px;
-			height: 20px;
-			background: #8A2BE2; /* Couleur du curseur du fader */
-			border-radius: 50%;
-			cursor: pointer;
-			box-shadow: 0 0 10px #00FFFF; /* Effet de glow cyan autour du curseur */
-		}
-
-		input[type="range"]::-moz-range-thumb {
-			width: 20px;
-			height: 20px;
-			background: #8A2BE2;
-			border-radius: 50%;
-			cursor: pointer;
-			box-shadow: 0 0 10px #00FFFF;
-		}
-
-		input[type="range"]::-ms-thumb {
-			width: 20px;
-			height: 20px;
-			background: #8A2BE2;
-			border-radius: 50%;
-			cursor: pointer;
-			box-shadow: 0 0 10px #00FFFF;
-		}
-		</style>
-
-
+        input[type="range"]::-ms-thumb {
+            width: 20px;
+            height: 20px;
+            background: #8A2BE2;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00FFFF;
+        }
+    </style>
 </head>
 
 <body>
@@ -424,6 +444,7 @@
     <div class="container">
         <div class="input-section">
             <form id="imageForm">
+                <!-- Sélection du Modèle -->
                 <label for="model" data-i18n="model_label">Modèle :</label>
                 <select id="model" name="model">
                     <option value="flux-16step" data-i18n="model_flux_16step">Flux 16-step</option>
@@ -434,19 +455,20 @@
                     <option value="flux-mjv3" data-i18n="model_flux_mjv3">Flux MJV3</option>
                 </select>
 
+                <!-- Champ de Prompt -->
                 <label for="prompt" data-i18n="prompt_label">Prompt :</label>
                 <textarea id="prompt" name="prompt" required placeholder="Décris ton image futuriste"></textarea>
+                <button type="button" id="save_prompt_btn" data-i18n="save_prompt_btn">Sauvegarder Prompt</button>
 
+                <!-- Boutons de Contrôle -->
                 <div class="button-wrapper">
-                    <!-- Conteneur pour Générer et Stopper -->
-                    <div style="display: flex; justify-content: space-between; gap: 10px;">
-                        <button type="button" id="stopBtn" data-i18n="stop_btn">Arrêter</button>
-                        <button type="button" id="downloadBtn" data-i18n="download_btn">Télécharger</button>
-                        <button type="button" id="saveAsBtn" data-i18n="download_as_btn">Télécharger sous</button>
-                        <button type="submit" data-i18n="generate_btn">Créer</button>
-                    </div>
+                    <button type="button" id="stopBtn" data-i18n="stop_btn">Arrêter</button>
+                    <button type="button" id="downloadBtn" data-i18n="download_btn">Télécharger</button>
+                    <button type="button" id="saveAsBtn" data-i18n="download_as_btn">Télécharger sous</button>
+                    <button type="submit" data-i18n="generate_btn">Créer</button>
                 </div>
 
+                <!-- Sélection de l'Aspect Ratio -->
                 <label for="aspect_ratio" data-i18n="aspect_ratio_label">Aspect Ratio :</label>
                 <select id="aspect_ratio" name="aspect_ratio">
                     <option value="1:1" data-i18n="aspect_1_1">1:1 (Carré)</option>
@@ -463,6 +485,7 @@
                     <option value="custom" data-i18n="aspect_custom">Personnalisé</option>
                 </select>
 
+                <!-- Dimensions Personnalisées -->
                 <div id="customDimensions" style="display:none;">
                     <label for="width" data-i18n="width_label">Largeur :</label>
                     <input type="number" id="width" name="width" min="256" max="1440" step="16" placeholder="256-1440">
@@ -474,50 +497,51 @@
                 <!-- Options spécifiques aux modèles -->
                 <div id="modelOptions"></div>
 
-                <!-- API Token Section -->
-                <div id="apiTokenSection">
-                    <h2 data-i18n="api_token_section">API Token Management</h2>
-                    <label for="apiToken" data-i18n="api_token_label">Replicate API Token:</label>
-                    <input type="password" id="apiToken" name="apiToken" placeholder="Enter your API token">
-                    <button type="button" id="saveApiTokenBtn" data-i18n="save_token_btn">Save Token</button>
+                <!-- Section Token API -->
+                <div style="margin-top: 20px;">
+                    <label for="apiToken" data-i18n="api_token_label">Token API Replicate :</label>
+                    <input type="text" id="apiToken" name="apiToken" placeholder="Entrez votre token API" data-i18n-placeholder="api_token_placeholder" readonly>
+                    <button type="button" id="saveApiTokenBtn" data-i18n="save_token_btn">Enregistrer le Token</button>
                 </div>
 
-                <!-- Saved Prompts Section -->
-                <div id="promptsSection">
-                    <h2 data-i18n="saved_prompts_section">Saved Prompts</h2>
-                    <input type="text" id="newPrompt" placeholder="New Prompt">
-                    <button type="button" id="savePromptBtn" data-i18n="save_prompt_btn">Save Prompt</button>
-                    <ul id="promptsList"></ul> <!-- Liste des prompts sauvegardés -->
+                <!-- Section Prompts Sauvegardés -->
+                <div style="margin-top: 20px;">
+                    <h2 data-i18n="saved_prompts_section">Prompts Sauvegardés</h2>
+                    <ul id="savedPromptsList"></ul>
                 </div>
 
-                <!-- Saved Lora Links Section -->
-                <div id="loraLinksSection">
-                    <h2 data-i18n="saved_lora_links_section">Saved Lora Links</h2>
-                    <input type="text" id="newLoraLink" placeholder="New Lora Link">
-                    <button type="button" id="saveLoraLinkBtn" data-i18n="save_lora_link_btn">Save Lora Link</button>
-                    <ul id="loraLinksList"></ul> <!-- Liste des Lora links sauvegardés -->
-                </div>
+                <!-- Section Lora Links Sauvegardés -->
+				<div style="margin-top: 20px;">
+					<h2 data-i18n="saved_lora_links_section">Lora Links Sauvegardés</h2>
+					<label for="extra_lora" data-i18n="extra_lora">Extra Lora:</label>
+					<input type="text" id="extra_lora" name="extra_lora" placeholder="Entrez le lien Lora" data-i18n-placeholder="lora_placeholder">
+					<button type="button" id="save_lora_link_btn" data-i18n="save_lora_link_btn">Sauvegarder Lora Link</button>
+					<button type="button" id="edit_lora_link_btn" data-i18n="edit_lora_link_btn">Modifier Lora Link</button> <!-- Nouveau Bouton -->
+					<ul id="savedLoraLinksList"></ul>
+				</div>
 
-                <label for="seed" data-i18n="seed_label">Seed :</label>
-                <div style="display: flex; align-items: center;">
-                    <input type="password" id="seed" name="seed" placeholder="Entrez la seed"> <!-- Champ pour entrer la seed -->
-                    <button type="button" id="toggleSeedVisibility" style="margin-left: 10px;" data-i18n="toggle_seed_btn">Afficher</button> <!-- Bouton pour basculer entre afficher/masquer la seed -->
-                </div>
 
-                <!-- Language Toggle Button -->
-                <button type="button" id="languageToggleBtn" data-i18n="language_toggle_btn">Français</button>
-            </form>
+                
+                <!-- Section Seeds Sauvegardés -->
+				<div style="margin-top: 20px;">
+					<h2 data-i18n="saved_seeds_section">Séeds Sauvegardés</h2>
+					<ul id="savedSeedsList"></ul>
+				</div>
+
+
+            <!-- Bouton de Changement de Langue -->
+            <button type="button" id="languageToggleBtn" data-i18n="language_toggle_btn">Français</button>
         </div>
 
         <div class="output-section">
             <div id="loading">
                 <div class="spinner"></div>
-                <p data-i18n="loading_text">Génération de ton image futuriste...</p>
+                <p data-i18n="loading_message">Génération de votre image futuriste...</p>
             </div>
-			
-			<div id="error-message" style="display: none; color: red;"></div>	
+        
+            <div id="error-message" style="display: none; color: red;"></div>	
             
-			<div id="output">
+            <div id="output">
                 <p data-i18n="output_placeholder">Votre image générée apparaîtra ici</p>
             </div>
         </div>
@@ -526,697 +550,678 @@
     <footer data-i18n="footer">
         Fait par JP Sunboom
     </footer>
-</body>
 
-<script>
-
-document.addEventListener('DOMContentLoaded', function() {
-// Configuration des entrées des modèles
-    const MODEL_INPUTS = {
-        'flux-16step': [
-            { name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'Nombre de sorties' },
-            { name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 16, label: 'Nombre de pas d\'inférence' },
-            { name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'Guidance Scale' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' },
-            { name: 'disable_safety_checker', type: 'boolean', default: false, label: 'Désactiver le vérificateur de sécurité' }
-        ],
-        'flux-8step': [
-            { name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'Nombre de sorties' },
-            { name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 8, label: 'Nombre de pas d\'inférence' },
-            { name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'Guidance Scale' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' },
-            { name: 'disable_safety_checker', type: 'boolean', default: false, label: 'Désactiver le vérificateur de sécurité' }
-        ],
-        'flux-dev': [
-            { name: 'steps', type: 'integer', min: 1, max: 50, default: 25, label: 'Nombre de pas' },
-            { name: 'guidance', type: 'number', min: 2, max: 5, step: 0.1, default: 3, label: 'Guidance' },
-            { name: 'interval', type: 'number', min: 1, max: 4, step: 0.1, default: 2, label: 'Interval' },
-            { name: 'safety_tolerance', type: 'integer', min: 1, max: 5, default: 2, label: 'Tolérance de sécurité' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' }
-        ],
-        'flux-pro': [
-            { name: 'steps', type: 'integer', min: 1, max: 50, default: 25, label: 'Nombre de pas' },
-            { name: 'guidance', type: 'number', min: 2, max: 5, step: 0.1, default: 3, label: 'Guidance' },
-            { name: 'interval', type: 'number', min: 1, max: 4, step: 0.1, default: 2, label: 'Interval' },
-            { name: 'safety_tolerance', type: 'integer', min: 1, max: 5, default: 2, label: 'Tolérance de sécurité' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' }
-        ],
-        'flux-schnell': [
-            { name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'Nombre de sorties' },
-            { name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 4, label: 'Nombre de pas d\'inférence' },
-            { name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'Guidance Scale' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' },
-            { name: 'disable_safety_checker', type: 'boolean', default: false, label: 'Désactiver le vérificateur de sécurité' }
-        ],
-        'flux-mjv3': [
-            { name: 'sub_model', type: 'enum', options: ['dev', 'schnell'], default: 'dev', label: 'Sous-modèle' },
-            { name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'Nombre de sorties' },
-            { name: 'num_inference_steps', type: 'integer', min: 1, max: 50, default: 28, label: 'Nombre de pas d\'inférence' },
-            { name: 'lora_scale', type: 'number', min: -1, max: 2, step: 0.1, default: 1, label: 'Lora Scale' },
-            { name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'Guidance Scale' },
-            { name: 'prompt_strength', type: 'number', min: 0, max: 1, step: 0.01, default: 0.8, label: 'Prompt Strength' },
-            { name: 'extra_lora', type: 'string', label: 'Extra Lora' },
-            { name: 'extra_lora_scale', type: 'number', min: -1, max: 2, step: 0.1, default: 1, label: 'Extra Lora Scale' },
-            { name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'Format de sortie' },
-            { name: 'output_quality', type: 'integer', min: 0, max: 100, default: 90, label: 'Qualité de sortie' },
-            { name: 'seed', type: 'integer', label: 'Seed' },
-            { name: 'disable_safety_checker', type: 'boolean', default: false, label: 'Désactiver le vérificateur de sécurité' }
-        ]
-    };
-
-
-
-let currentLanguage = 'en';
-// Stockage du token API et contrôleur pour annulation des requêtes
-let apiToken = '';
-let controller = null;
-
-// Gestion du bouton de changement de langue
-document.getElementById('languageToggleBtn').addEventListener('click', function () {
-    // Alterne entre anglais ('en') et français ('fr') lorsque le bouton est cliqué
-    currentLanguage = currentLanguage === 'en' ? 'fr' : 'en';
-    updateLanguage(currentLanguage);
-});
-
-// Fonction de mise à jour de la langue
-function updateLanguage(language) {
-    // Mise à jour des textes traduits pour chaque élément ayant l'attribut [data-i18n]
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        // Mise à jour des contenus textuels en fonction de la langue sélectionnée
-        if (translations[language][key]) {
-            el.textContent = translations[language][key];
-        }
-    });
-
-    // Mise à jour des placeholders pour les champs d'entrée spécifiques (prompt et token API)
-    const promptInput = document.getElementById('prompt');
-    const apiTokenInput = document.getElementById('apiToken');
-    if (promptInput) promptInput.placeholder = translations[language].prompt_placeholder;
-    if (apiTokenInput) apiTokenInput.placeholder = translations[language].api_token_placeholder;
-
-    // Gestion des placeholders spécifiques aux dimensions personnalisées
-    const widthInput = document.getElementById('width');
-    const heightInput = document.getElementById('height');
-    if (widthInput && heightInput) {
-        widthInput.placeholder = translations[language].width_placeholder;
-        heightInput.placeholder = translations[language].height_placeholder;
-    }
-
-    // Mettre à jour les options des sélecteurs (menus déroulants)
-    document.querySelectorAll('select option').forEach(option => {
-        const key = option.getAttribute('data-i18n');
-        if (translations[language][key]) {
-            option.textContent = translations[language][key];
-        }
-    });
-
-    // Mise à jour des options de modèle après la sélection de la langue
-    updateModelOptions();
-}
-
-
-// Configuration initiale de la langue lors du chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    updateLanguage(currentLanguage);
-    console.log("Langue initialisée au chargement de la page");
-});
-
-// Gestion de la visibilité de la seed (afficher/masquer)
-document.getElementById('toggleSeedVisibility').addEventListener('click', function () {
-    const seedInput = document.getElementById('seed');
-    if (seedInput.type === 'password') {
-        seedInput.type = 'text';
-        this.textContent = translations[currentLanguage].toggle_seed_btn === 'Show' ? 'Masquer' : 'Afficher';
-    } else {
-        seedInput.type = 'password';
-        this.textContent = translations[currentLanguage].toggle_seed_btn;
-    }
-});
-
-// Fonction pour mettre à jour dynamiquement les options du formulaire en fonction du modèle sélectionné
-function updateModelOptions() {
-    const model = document.getElementById('model').value;
-    const modelOptionsDiv = document.getElementById('modelOptions');
-    if (!modelOptionsDiv) {
-        console.error("L'élément modelOptions n'existe pas dans le DOM");
-        return;
-    }
-    modelOptionsDiv.innerHTML = ''; // Vider les options précédentes
-
-    const options = MODEL_INPUTS[model];
-    if (!options) {
-        console.error(`Aucune option trouvée pour le modèle ${model}`);
-        return;
-    }
-
-    console.log(`Mise à jour des options pour le modèle: ${model}`);
-
-    options.forEach(option => {
-        let inputElement;
-        const labelElement = document.createElement('label');
-        labelElement.setAttribute('for', option.name);
-        labelElement.textContent = `${option.label}:`;
-
-        switch (option.type) {
-            case 'integer':
-            case 'number':
-                // Création d'un slider avec un champ texte pour les nombres
-                inputElement = document.createElement('input');
-                inputElement.type = 'range';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.min = option.min;
-                inputElement.max = option.max;
-                inputElement.step = option.step || 1;
-                inputElement.value = option.default || 0;
-
-                const valueDisplay = document.createElement('span');
-                valueDisplay.id = `${option.name}_value`;
-                valueDisplay.textContent = inputElement.value;
-                valueDisplay.style.color = 'white';
-
-                const container = document.createElement('div');
-                container.style.display = 'flex';
-                container.style.gap = '10px';
-                container.style.alignItems = 'center';
-
-                const textBox = document.createElement('input');
-                textBox.type = 'number';
-                textBox.style.color = 'white';
-                textBox.min = option.min;
-                textBox.max = option.max;
-                textBox.step = option.step || 1;
-                textBox.value = inputElement.value;
-
-                // Synchronisation entre le slider et le champ texte
-                inputElement.addEventListener('input', function () {
-                    textBox.value = this.value;
-                    valueDisplay.textContent = this.value;
-                });
-
-                textBox.addEventListener('input', function () {
-                    inputElement.value = this.value;
-                    valueDisplay.textContent = this.value;
-                });
-
-                container.appendChild(inputElement);
-                container.appendChild(textBox);
-                labelElement.appendChild(valueDisplay);
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(container);
-                break;
-
-            case 'boolean':
-                inputElement = document.createElement('input');
-                inputElement.type = 'checkbox';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.checked = option.default || false;
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
-
-            case 'enum':
-                inputElement = document.createElement('select');
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                option.options.forEach(opt => {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = opt;
-                    optionElement.textContent = opt;
-                    inputElement.appendChild(optionElement);
-                });
-                inputElement.value = option.default || option.options[0];
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
-
-            case 'string':
-                inputElement = document.createElement('input');
-                inputElement.type = 'text';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.value = option.default || '';
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
-        }
-
-        modelOptionsDiv.appendChild(labelElement);
-        modelOptionsDiv.appendChild(inputElement);
-        console.log(`Option ajoutée: ${option.name}`);
-    });
-}
-
-// Initialiser les options du modèle lorsque la page se charge
-document.getElementById('model').addEventListener('change', updateModelOptions);
-
-// Simule un événement "change" pour charger les options du modèle dès le début
-document.getElementById('model').dispatchEvent(new Event('change'));
-
-document.addEventListener('DOMContentLoaded', function() {
-    const modelSelect = document.getElementById('model');
+    <script>
     
-    if (modelSelect) {
-        // Ajoute un écouteur sur le changement de modèle
-        modelSelect.addEventListener('change', updateModelOptions);
-        // Simule un événement "change" pour initialiser les options au chargement
-        modelSelect.dispatchEvent(new Event('change'));
-        console.log("Options du modèle initialisées au chargement de la page");
-    } else {
-        console.error('Élément #model introuvable.');
-    }
-});
+    
+    let currentLanguage = 'en';
+    let apiToken = '';
+    let controller = null;
 
-
-// Translations (versions anglaise et française)
-	const translations = {
-    en: {
-        title: "Hyper FLUX WebUI",
-        model_label: "Model:",
-        prompt_label: "Prompt:",
-        stop_btn: "Stop",
-        download_btn: "Download",
-        download_as_btn: "Download As",
-        generate_btn: "Generate",
-        aspect_ratio_label: "Aspect Ratio:",
-        aspect_1_1: "1:1 (Square)",
-        aspect_16_9: "16:9 (Wide Screen)",
-        aspect_21_9: "21:9 (Ultra Wide)",
-        aspect_3_2: "3:2 (Photo)",
-        aspect_2_3: "2:3 (Portrait)",
-        aspect_4_5: "4:5 (Instagram)",
-        aspect_5_4: "5:4 (Print)",
-        aspect_3_4: "3:4 (Medium Portrait)",
-        aspect_4_3: "4:3 (Standard TV/Photo)",
-        aspect_9_16: "9:16 (Vertical Video)",
-        aspect_9_21: "9:21 (Ultra-Portrait Cinema)",
-        aspect_custom: "Custom",
-        width_label: "Width:",
-        height_label: "Height:",
-        api_token_section: "API Token Management",
-        api_token_label: "Replicate API Token:",
-        save_token_btn: "Save Token",
-        saved_prompts_section: "Saved Prompts",
-        save_prompt_btn: "Save Prompt",
-        saved_lora_links_section: "Saved Lora Links",
-        save_lora_link_btn: "Save Lora Link",
-        seed_label: "Seed:",
-        toggle_seed_btn: "Show",
-        loading_message: "Generating your futuristic image...",
-        output_placeholder: "Your generated image will appear here",
-        language_toggle_btn: "Français",
-        footer: "Made by JP Sunboom",
-        disable_safety_checker: "Disable safety checker",
-        num_outputs: "Number of outputs",
-        num_inference_steps: "Number of inference steps",
-        guidance_scale: "Guidance Scale",
-        output_format: "Output format",
-        output_quality: "Output quality",
-        lora_scale: "Lora Scale",
-        prompt_strength: "Prompt Strength",
-        extra_lora: "Extra Lora",
-        extra_lora_scale: "Extra Lora Scale",
-        sub_model: "Sub-model",
-        width_placeholder: "256-1440",
-        height_placeholder: "256-1440",
-        save_token_alert: "API Token saved successfully.",
-        save_prompt_alert: "Prompt saved successfully.",
-        save_error_alert: "Error saving prompt or API token.",
-        generation_error: "Error"
-    },
-    fr: {
-        title: "Interface Web Hyper FLUX",
-        model_label: "Modèle :",
-        prompt_label: "Prompt :",
-        stop_btn: "Arrêter",
-        download_btn: "Télécharger",
-        download_as_btn: "Télécharger sous",
-        generate_btn: "Créer",
-        aspect_ratio_label: "Aspect Ratio :",
-        aspect_1_1: "1:1 (Carré)",
-        aspect_16_9: "16:9 (Écran large)",
-        aspect_21_9: "21:9 (Ultra large)",
-        aspect_3_2: "3:2 (Photo)",
-        aspect_2_3: "2:3 (Portrait)",
-        aspect_4_5: "4:5 (Instagram)",
-        aspect_5_4: "5:4 (Impression)",
-        aspect_3_4: "3:4 (Portrait moyen)",
-        aspect_4_3: "4:3 (Standard TV/Photo)",
-        aspect_9_16: "9:16 (Vidéo verticale)",
-        aspect_9_21: "9:21 (Cinéma ultra-portrait)",
-        aspect_custom: "Personnalisé",
-        width_label: "Largeur :",
-        height_label: "Hauteur :",
-        api_token_section: "Gestion du Token API",
-        api_token_label: "Token API Replicate :",
-        save_token_btn: "Enregistrer le Token",
-        saved_prompts_section: "Prompts Sauvegardés",
-        save_prompt_btn: "Sauvegarder Prompt",
-        saved_lora_links_section: "Lora Links Sauvegardés",
-        save_lora_link_btn: "Sauvegarder Lora Link",
-        seed_label: "Seed :",
-        toggle_seed_btn: "Afficher",
-        loading_message: "Génération de votre image futuriste...",
-        output_placeholder: "Votre image générée apparaîtra ici",
-        language_toggle_btn: "English",
-        footer: "Fait par JP Sunboom",
-        disable_safety_checker: "Désactiver le vérificateur de sécurité",
-        num_outputs: "Nombre de sorties",
-        num_inference_steps: "Nombre de pas d'inférence",
-        guidance_scale: "Guidance Scale",
-        output_format: "Format de sortie",
-        output_quality: "Qualité de sortie",
-        lora_scale: "Lora Scale",
-        prompt_strength: "Force du prompt",
-        extra_lora: "Extra Lora",
-        extra_lora_scale: "Échelle Extra Lora",
-        sub_model: "Sous-modèle",
-        width_placeholder: "256-1440",
-        height_placeholder: "256-1440",
-        save_token_alert: "Token API sauvegardé avec succès.",
-        save_prompt_alert: "Prompt sauvegardé avec succès.",
-        save_error_alert: "Erreur lors de la sauvegarde du prompt ou du token API.",
-        generation_error: "Erreur"
-    }
-};
-  // Fin de l'objet translations
-	
-	// Mersenne Twister class
-	class MersenneTwister {
-		constructor(seed) {
-			if (seed === undefined) {
-				seed = new Date().getTime();
-			}
-			this.mt = new Array(624);
-			this.mti = 625;
-			this.init_genrand(seed);
-		}
-
-		init_genrand(s) {
-			this.mt[0] = s >>> 0;
-			for (this.mti = 1; this.mti < 624; this.mti++) {
-				let s = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30);
-				this.mt[this.mti] = (((s & 0xffff0000) >>> 16) * 1812433253) << 16
-								  + ((s & 0x0000ffff) * 1812433253) + this.mti;
-				this.mt[this.mti] >>>= 0;
-			}
-		}
-
-		genrand_int32() {
-			let y;
-			const mag01 = [0x0, 0x9908b0df];
-
-			if (this.mti >= 624) {
-				let kk;
-
-				if (this.mti === 625) {
-					this.init_genrand(5489);
-				}
-
-				for (kk = 0; kk < 227; kk++) {
-					y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
-					this.mt[kk] = this.mt[kk + 397] ^ (y >>> 1) ^ mag01[y & 0x1];
-				}
-				for (; kk < 623; kk++) {
-					y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
-					this.mt[kk] = this.mt[kk - (624 - 397)] ^ (y >>> 1) ^ mag01[y & 0x1];
-				}
-				y = (this.mt[623] & 0x80000000) | (this.mt[0] & 0x7fffffff);
-				this.mt[623] = this.mt[396] ^ (y >>> 1) ^ mag01[y & 0x1];
-
-				this.mti = 0;
-			}
-
-			y = this.mt[this.mti++];
-			y ^= (y >>> 11);
-			y ^= (y << 7) & 0x9d2c5680;
-			y ^= (y << 15) & 0xefc60000;
-			y ^= (y >>> 18);
-
-			return y >>> 0;
-		}
-	}
-	// Modèles disponibles avec leurs versions respectives
-    const MODEL_VERSIONS = {
-        'flux-16step': 'lucataco/hyper-flux-16step:382cf8959fb0f0d665b26e7e80b8d6dc3faaef1510f14ce017e8c732bb3d1eb7',
-        'flux-8step': 'lucataco/hyper-flux-8step:81946b1e09b256c543b35f37333a30d0d02ee2cd8c4f77cd915873a1ca622bad',
-        'flux-dev': 'black-forest-labs/flux-dev',
-        'flux-pro': 'black-forest-labs/flux-pro',
-        'flux-schnell': 'black-forest-labs/flux-schnell',
-        'flux-mjv3': 'fofr/flux-mjv3:f8bba190713142471df7ef2adba00fe9c84f5d63b5c48702082f2718e7f4d8b2'
-    };
-
-      
-
-    // Récupérer les données d'environnement depuis le process principal (ex: token API)
-    window.electronAPI.receive('env-data', (data) => {
-        apiToken = data.apiToken;
-        console.log('Token API reçu:', apiToken);
-    });
-
-// Afficher les dimensions personnalisées si l'utilisateur sélectionne "custom"
-// Afficher ou masquer les dimensions personnalisées
-document.getElementById('aspect_ratio').addEventListener('change', function () {
-    const customDimensions = document.getElementById('customDimensions');
-    if (this.value === 'custom') {
-        customDimensions.style.display = 'block';
-    } else {
-        customDimensions.style.display = 'none';
-    }
-});
-
-// Fonction pour vérifier et traiter les dimensions personnalisées
-function validateCustomDimensions(aspect_ratio, formData, loadingDiv, input) {
-    if (aspect_ratio === 'custom') {
-        const width = formData.get('width');
-        const height = formData.get('height');
-
-        if (!width || !height || isNaN(width) || isNaN(height)) {
-            alert('Veuillez entrer des dimensions valides pour la largeur et la hauteur.');
-            if (loadingDiv) {
-                loadingDiv.style.display = 'none'; // Masquer le chargement en cas d'erreur
+    // Classe Mersenne Twister pour générer des seeds aléatoires
+    class MersenneTwister {
+        constructor(seed) {
+            if (seed === undefined) {
+                seed = new Date().getTime();
             }
-            return false; // Indique que la validation a échoué
+            this.mt = new Array(624);
+            this.mti = 625;
+            this.init_genrand(seed);
         }
 
-        input['width'] = parseInt(width);
-        input['height'] = parseInt(height);
+        init_genrand(s) {
+            this.mt[0] = s >>> 0;
+            for (this.mti = 1; this.mti < 624; this.mti++) {
+                let s_val = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30);
+                this.mt[this.mti] = (((s_val & 0xffff0000) >>> 16) * 1812433253) + ((s_val & 0x0000ffff) * 1812433253) + this.mti;
+                this.mt[this.mti] >>>= 0;
+            }
+        }
+
+        genrand_int32() {
+            let y;
+            const mag01 = [0x0, 0x9908b0df];
+
+            if (this.mti >= 624) {
+                let kk;
+
+                if (this.mti === 625) {
+                    this.init_genrand(5489);
+                }
+
+                for (kk = 0; kk < 227; kk++) {
+                    y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
+                    this.mt[kk] = this.mt[kk + 397] ^ (y >>> 1) ^ mag01[y & 0x1];
+                }
+                for (; kk < 623; kk++) {
+                    y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff);
+                    this.mt[kk] = this.mt[kk - (624 - 397)] ^ (y >>> 1) ^ mag01[y & 0x1];
+                }
+                y = (this.mt[623] & 0x80000000) | (this.mt[0] & 0x7fffffff);
+                this.mt[623] = this.mt[396] ^ (y >>> 1) ^ mag01[y & 0x1];
+
+                this.mti = 0;
+            }
+
+            y = this.mt[this.mti++];
+            y ^= (y >>> 11);
+            y ^= (y << 7) & 0x9d2c5680;
+            y ^= (y << 15) & 0xefc60000;
+            y ^= (y >>> 18);
+
+            return y >>> 0;
+        }
     }
-    
-    return true; // Validation réussie
-}
 
-// Utilisation de la fonction pour valider les dimensions avant traitement
-function handleSubmit() {
-    const aspect_ratio = document.getElementById('aspect_ratio').value;
-    const formData = new FormData(document.getElementById('imageForm'));
-    const loadingDiv = document.getElementById('loading');
-    const input = {};  // Collecte des inputs
-    
-    // Utilisation de la fonction pour valider les dimensions avant traitement
-    const isValidDimensions = validateCustomDimensions(aspect_ratio, formData, loadingDiv, input);
-    if (!isValidDimensions) {
-        return;  // Ici, c'est correct car il est dans une fonction
+    // Translations (versions anglaise et française)
+    const translations = {
+        en: {
+            title: "Hyper FLUX WebUI",
+            model_label: "Model:",
+            prompt_label: "Prompt:",
+            stop_btn: "Stop",
+            download_btn: "Download",
+            download_as_btn: "Download As",
+            generate_btn: "Generate",
+            aspect_ratio_label: "Aspect Ratio:",
+            aspect_1_1: "1:1 (Square)",
+            aspect_16_9: "16:9 (Wide Screen)",
+            aspect_21_9: "21:9 (Ultra Wide)",
+            aspect_3_2: "3:2 (Photo)",
+            aspect_2_3: "2:3 (Portrait)",
+            aspect_4_5: "4:5 (Instagram)",
+            aspect_5_4: "5:4 (Print)",
+            aspect_3_4: "3:4 (Medium Portrait)",
+            aspect_4_3: "4:3 (Standard TV/Photo)",
+            aspect_9_16: "9:16 (Vertical Video)",
+            aspect_9_21: "9:21 (Ultra-Portrait Cinema)",
+            aspect_custom: "Custom",
+            width_label: "Width:",
+            height_label: "Height:",
+            api_token_section: "API Token Management",
+            api_token_label: "Replicate API Token:",
+            save_token_btn: "Save Token",
+            edit_token_btn: "Edit Token",
+            saved_prompts_section: "Saved Prompts",
+            save_prompt_btn: "Save Prompt",
+            saved_lora_links_section: "Saved Lora Links",
+            save_lora_link_btn: "Save Lora Link",
+            seed_label: "Seed : (0 à 4294967295) Random=0:",
+            save_seed_alert: "Seed sauvegardée avec succès.",
+            seed_delete_error_alert: "Erreur lors de la suppression de la seed.",
+            seed_delete_confirm: "Voulez-vous supprimer cette seed?",
+            loading_message: "Generating your futuristic image...",
+            output_placeholder: "Your generated image will appear here",
+            language_toggle_btn: "Français",
+            footer: "Made by JP Sunboom",
+            disable_safety_checker: "Disable safety checker",
+            num_outputs: "Number of outputs",
+            num_inference_steps: "Number of inference steps",
+            guidance_scale: "Guidance Scale",
+            output_format: "Output format",
+            output_quality: "Output quality",
+            lora_scale: "Lora Scale",
+            prompt_strength: "Prompt Strength",
+            extra_lora: "Extra Lora",
+            extra_lora_scale: "Extra Lora Scale",
+            sub_model: "Sub-model",
+            width_placeholder: "256-1440",
+            height_placeholder: "256-1440",
+            save_error_alert: "Error saving prompt, seed or API token.",
+            generation_error: "Error",
+            prompt_placeholder: "Describe your futuristic image",
+            api_token_placeholder: "Enter your API token",
+            lora_placeholder: "Enter Lora link",
+            lora_link_saved_alert: "Lora link saved successfully.",
+            lora_delete_error_alert: "Error deleting Lora link.",
+            prompt_delete_error_alert: "Error deleting prompt.",
+            prompt_delete_confirm: "Do you want to delete this prompt?",
+            lora_delete_confirm: "Do you want to delete this Lora link?",
+			saved_seeds_section: "Saved Seeds",
+			save_seed_btn: "Save Seed",
+			edit_lora_link_btn: "Edit Lora Link"
+        },
+        fr: {
+            title: "Interface Web Hyper FLUX",
+            model_label: "Modèle :",
+            prompt_label: "Prompt :",
+            stop_btn: "Arrêter",
+            download_btn: "Télécharger",
+            download_as_btn: "Télécharger sous",
+            generate_btn: "Créer",
+            aspect_ratio_label: "Aspect Ratio :",
+            aspect_1_1: "1:1 (Carré)",
+            aspect_16_9: "16:9 (Écran large)",
+            aspect_21_9: "21:9 (Ultra large)",
+            aspect_3_2: "3:2 (Photo)",
+            aspect_2_3: "2:3 (Portrait)",
+            aspect_4_5: "4:5 (Instagram)",
+            aspect_5_4: "5:4 (Impression)",
+            aspect_3_4: "3:4 (Portrait moyen)",
+            aspect_4_3: "4:3 (Standard TV/Photo)",
+            aspect_9_16: "9:16 (Vidéo verticale)",
+            aspect_9_21: "9:21 (Cinéma ultra-portrait)",
+            aspect_custom: "Personnalisé",
+            width_label: "Largeur :",
+            height_label: "Hauteur :",
+            api_token_section: "Gestion du Token API",
+            api_token_label: "Token API Replicate :",
+            save_token_btn: "Enregistrer le Token",
+            edit_token_btn: "Modifier le Token",
+            saved_prompts_section: "Prompts Sauvegardés",
+            save_prompt_btn: "Sauvegarder Prompt",
+            saved_lora_links_section: "Lora Links Sauvegardés",
+            save_lora_link_btn: "Sauvegarder Lora Link",
+            seed_label: "Seed : (0 à 4294967295) Random=0",
+            save_seed_alert: "Seed sauvegardée avec succès.",
+            seed_delete_error_alert: "Erreur lors de la suppression de la seed.",
+            seed_delete_confirm: "Voulez-vous supprimer cette seed?",
+            loading_message: "Génération de votre image futuriste...",
+            output_placeholder: "Votre image générée apparaîtra ici",
+            language_toggle_btn: "English",
+            footer: "Fait par JP Sunboom",
+            disable_safety_checker: "Désactiver le vérificateur de sécurité",
+            num_outputs: "Nombre de sorties",
+            num_inference_steps: "Nombre de pas d'inférence",
+            guidance_scale: "Guidance Scale",
+            output_format: "Format de sortie",
+            output_quality: "Qualité de sortie",
+            lora_scale: "Lora Scale",
+            prompt_strength: "Force du prompt",
+            extra_lora: "Extra Lora",
+            extra_lora_scale: "Échelle Extra Lora",
+            sub_model: "Sous-modèle",
+            width_placeholder: "256-1440",
+            height_placeholder: "256-1440",
+            save_error_alert: "Erreur lors de la sauvegarde du prompt, seed ou token API.",
+            generation_error: "Erreur",
+            prompt_placeholder: "Décris ton image futuriste",
+            api_token_placeholder: "Entrez votre token API",
+            lora_placeholder: "Entrez le lien Lora",
+            lora_link_saved_alert: "Lien Lora sauvegardé avec succès.",
+            lora_delete_error_alert: "Erreur lors de la suppression du lien Lora.",
+            prompt_delete_error_alert: "Erreur lors de la suppression du prompt.",
+            prompt_delete_confirm: "Voulez-vous supprimer ce prompt ?",
+            lora_delete_confirm: "Voulez-vous supprimer ce lien Lora ?",
+			saved_seeds_section: "Seeds Sauvegardées",
+			save_seed_btn: "Sauvegarder Seed",
+			edit_lora_link_btn: "Modifier Lora Link"
+        }
+    };
+
+   // Configuration des entrées des modèles
+	const MODEL_INPUTS = {
+		'flux-16step': [
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 16, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: false, label: 'disable_safety_checker' }
+		],
+		'flux-8step': [
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 8, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: false, label: 'disable_safety_checker' }
+		],
+		'flux-schnell': [
+			// Définissez les options spécifiques si elles diffèrent
+			// Sinon, dupliquez les mêmes que flux-16step
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 16, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 3.5, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'webp', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 80, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: false, label: 'disable_safety_checker' }
+		],
+		'flux-mjv3': [
+			// Définissez les options spécifiques si elles diffèrent
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 1, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 30, default: 20, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 10, step: 0.1, default: 4.0, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'png', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 90, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: true, label: 'disable_safety_checker' },
+			{ name: 'sub_model', type: 'string', default: 'default', label: 'sub_model' }
+		],
+		'flux-pro': [
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 4, default: 2, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 50, default: 25, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 15, step: 0.1, default: 5.0, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'png', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 100, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: true, label: 'disable_safety_checker' }
+		],
+		'flux-dev': [
+			{ name: 'num_outputs', type: 'integer', min: 1, max: 6, default: 3, label: 'num_outputs' },
+			{ name: 'num_inference_steps', type: 'integer', min: 1, max: 100, default: 50, label: 'num_inference_steps' },
+			{ name: 'guidance_scale', type: 'number', min: 0, max: 20, step: 0.1, default: 7.5, label: 'guidance_scale' },
+			{ name: 'output_format', type: 'enum', options: ['webp', 'jpg', 'png'], default: 'jpg', label: 'output_format' },
+			{ name: 'output_quality', type: 'integer', min: 0, max: 100, default: 95, label: 'output_quality' },
+			{ name: 'seed', type: 'integer', label: 'seed' },
+			{ name: 'disable_safety_checker', type: 'boolean', default: true, label: 'disable_safety_checker' }
+		]
+};
+
+
+    // Fonction de mise à jour de la langue
+    function updateLanguage(language) {
+        // Mise à jour des textes traduits pour chaque élément ayant l'attribut [data-i18n]
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            // Mise à jour des contenus textuels en fonction de la langue sélectionnée
+            if (translations[language][key]) {
+                el.textContent = translations[language][key];
+            }
+
+            // Mise à jour des placeholders pour les éléments avec data-i18n-placeholder
+            if (el.hasAttribute('data-i18n-placeholder')) {
+                const placeholderKey = el.getAttribute('data-i18n-placeholder');
+                if (translations[language][placeholderKey]) {
+                    el.setAttribute('placeholder', translations[language][placeholderKey]);
+                }
+            }
+        });
+
+        // Mise à jour des placeholders pour les champs d'entrée spécifiques (prompt, Lora, et token API)
+        const promptInput = document.getElementById('prompt');
+        const apiTokenInput = document.getElementById('apiToken');
+        const loraInput = document.getElementById('extra_lora');
+
+        if (promptInput) promptInput.placeholder = translations[language].prompt_placeholder;
+        if (apiTokenInput) {
+            apiTokenInput.placeholder = translations[language].api_token_placeholder;
+            // Si API token est sauvegardé, l'afficher comme '****'
+            if (apiToken) {
+                apiTokenInput.value = '****';
+                apiTokenInput.type = 'password';
+                apiTokenInput.readOnly = true;
+            } else {
+                apiTokenInput.value = '';
+                apiTokenInput.type = 'text';
+                apiTokenInput.readOnly = false;
+            }
+        }
+        if (loraInput) loraInput.placeholder = translations[language].lora_placeholder;
+
+        // Gestion des placeholders spécifiques aux dimensions personnalisées
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+        if (widthInput && heightInput) {
+            widthInput.placeholder = translations[language].width_placeholder;
+            heightInput.placeholder = translations[language].height_placeholder;
+        }
+
+        // Mettre à jour les options des sélecteurs (menus déroulants)
+        document.querySelectorAll('select').forEach(select => {
+            const selectedOption = select.value;
+            select.querySelectorAll('option').forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                if (translations[language][key]) {
+                    option.textContent = translations[language][key];
+                }
+            });
+            // Restaurer la sélection
+            select.value = selectedOption;
+        });
+
+        // Traduire les options des modèles après avoir mis à jour les textes principaux
+        translateModelOptions(language);
     }
 
-    // Suite du code pour traiter la soumission
-}
+    // Fonction pour traduire les options des modèles
+    function translateModelOptions(language) {
+        document.querySelectorAll('#modelOptions label').forEach(label => {
+            const key = label.getAttribute('data-i18n');
+            if (translations[language][key]) {
+                label.textContent = translations[language][key] + ': ';
+            }
+        });
 
-// Appelle la fonction au bon moment (par exemple, lors de la soumission du formulaire)
-document.getElementById('imageForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    handleSubmit();  // Appelle la fonction lors de la soumission du formulaire
-});
+        document.querySelectorAll('#modelOptions select option').forEach(option => {
+            const key = option.getAttribute('data-i18n');
+            if (translations[language][key]) {
+                option.textContent = translations[language][key];
+            }
+        });
+    }
 
+    // Gestion du bouton de changement de langue
+    document.getElementById('languageToggleBtn').addEventListener('click', function () {
+        // Alterne entre anglais ('en') et français ('fr') lorsque le bouton est cliqué
+        currentLanguage = currentLanguage === 'en' ? 'fr' : 'en';
+        updateLanguage(currentLanguage);
+    });
 
+    // Configuration initiale de la langue lors du chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLanguage(currentLanguage);
+        console.log("Langue initialisée au chargement de la page");
 
+        const modelSelect = document.getElementById('model');
 
-
-// Gestion des options spécifiques aux modèles choisis
-document.getElementById('model').addEventListener('change', function () {
-    const model = this.value;
-    const modelOptionsDiv = document.getElementById('modelOptions');
-    modelOptionsDiv.innerHTML = ''; // Vider les options précédentes
-
-    const options = MODEL_INPUTS[model];
-
-    // Créer les options en fonction du modèle sélectionné
-    options.forEach(option => {
-        let inputElement;
-        let labelElement = document.createElement('label');
-        labelElement.htmlFor = option.name;
-        labelElement.textContent = `${option.label}: `;
-
-        switch (option.type) {
-            case 'integer':
-            case 'number':
-                inputElement = document.createElement('input');
-                inputElement.type = 'range';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.min = option.min;
-                inputElement.max = option.max;
-                inputElement.step = option.step || 1;
-                inputElement.value = option.default || 0;
-
-                const valueDisplay = document.createElement('span');
-                valueDisplay.id = `${option.name}_value`;
-                valueDisplay.textContent = inputElement.value;
-                valueDisplay.style.color = 'white';
-
-                const container = document.createElement('div');
-                container.style.display = 'flex';
-                container.style.gap = '10px';
-                container.style.alignItems = 'center';
-
-                const textBox = document.createElement('input');
-                textBox.type = 'number';
-                textBox.style.color = 'white';
-                textBox.min = option.min;
-                textBox.max = option.max;
-                textBox.step = option.step || 1;
-                textBox.value = inputElement.value;
-
-                inputElement.addEventListener('input', function () {
-                    textBox.value = this.value;
-                    valueDisplay.textContent = this.value;
-                });
-
-                textBox.addEventListener('input', function () {
-                    inputElement.value = this.value;
-                    valueDisplay.textContent = this.value;
-                });
-
-                container.appendChild(inputElement);
-                container.appendChild(textBox);
-                labelElement.appendChild(valueDisplay);
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(container);
-                break;
-
-            case 'boolean':
-                inputElement = document.createElement('input');
-                inputElement.type = 'checkbox';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.checked = option.default || false;
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
-
-            case 'string':
-                inputElement = document.createElement('input');
-                inputElement.type = 'text';
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                inputElement.value = option.default || '';
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
-
-            case 'enum':
-                inputElement = document.createElement('select');
-                inputElement.name = option.name;
-                inputElement.id = option.name;
-                option.options.forEach(opt => {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = opt;
-                    optionElement.textContent = opt;
-                    inputElement.appendChild(optionElement);
-                });
-                inputElement.value = option.default || '';
-                modelOptionsDiv.appendChild(labelElement);
-                modelOptionsDiv.appendChild(inputElement);
-                break;
+        if (modelSelect) {
+            // Ajoute un écouteur sur le changement de modèle
+            modelSelect.addEventListener('change', updateModelOptions);
+            // Simule un événement "change" pour initialiser les options au chargement
+            modelSelect.dispatchEvent(new Event('change'));
+            console.log("Options du modèle initialisées au chargement de la page");
+        } else {
+            console.error('Élément #model introuvable.');
         }
 
-        // Gestion spéciale pour l'option 'extra_lora'
-        if (option.name === 'extra_lora') {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tooltip';
-            tooltip.textContent = '?';
+        // Récupérer le token API de l'env via IPC
+        window.electronAPI.getApiToken().then(token => {
+            if (token) {
+                apiToken = token;
+                const apiTokenInput = document.getElementById('apiToken');
+                if (apiTokenInput) {
+                    apiTokenInput.value = '****';
+                    apiTokenInput.type = 'password';
+                    apiTokenInput.readOnly = true;
+                }
+            }
+        });
 
-            const tooltipText = document.createElement('span');
-            tooltipText.className = 'tooltiptext';
-            tooltipText.innerHTML = `
-                Formats de liens pour les LoRA :
-                <br> Replicate : owner/model-name
-                <br> HuggingFace : huggingface.co/owner/model-name
-                <br> CivitAI : civitai.com/models/&lt;id&gt;/&lt;model-name&gt;
-                <br> Autres : URL direct vers .safetensors
-            `;
-            tooltip.appendChild(tooltipText);
-            labelElement.appendChild(tooltip);
-        }
+        // Obtenir les prompts sauvegardés, Lora links et Seeds
+        loadSavedPrompts();
+        loadSavedLoraLinks();
+        loadSavedSeeds();
+    });
 
-        if (option.name === 'seed') {
-            labelElement.textContent = `${option.label}: (0 à 4294967295) `;
-
-            const seedValueDisplay = document.createElement('span');
-            seedValueDisplay.id = `${option.name}_value`;
-            seedValueDisplay.textContent = option.default || 0;
-            seedValueDisplay.style.color = 'white';
-
-            const seedContainer = document.createElement('div');
-            seedContainer.style.display = 'flex';
-            seedContainer.style.gap = '10px';
-            seedContainer.style.alignItems = 'center';
-
-            const seedTextBox = document.createElement('input');
-            seedTextBox.type = 'number';
-            seedTextBox.min = 0;
-            seedTextBox.max = 4294967295;
-            seedTextBox.step = 1;
-            seedTextBox.value = inputElement.value;
-            seedTextBox.style.color = 'white';
-
-            inputElement.addEventListener('input', function () {
-                seedTextBox.value = this.value;
-                seedValueDisplay.textContent = this.value;
-            });
-
-            seedTextBox.addEventListener('input', function () {
-                inputElement.value = this.value;
-                seedValueDisplay.textContent = this.value;
-            });
-
-            seedContainer.appendChild(inputElement);
-            seedContainer.appendChild(seedTextBox);
-            modelOptionsDiv.appendChild(labelElement);
-            modelOptionsDiv.appendChild(seedContainer);
+    // Afficher ou masquer les dimensions personnalisées
+    document.getElementById('aspect_ratio').addEventListener('change', function () {
+        const customDimensions = document.getElementById('customDimensions');
+        if (this.value === 'custom') {
+            customDimensions.style.display = 'block';
+        } else {
+            customDimensions.style.display = 'none';
         }
     });
-});
 
-// Initialiser les options du modèle par défaut au chargement de la page
-document.getElementById('model').dispatchEvent(new Event('change'));
+    // Fonction pour mettre à jour dynamiquement les options du formulaire en fonction du modèle sélectionné
+    function updateModelOptions() {
+        const model = document.getElementById('model').value;
+        const modelOptionsDiv = document.getElementById('modelOptions');
+        if (!modelOptionsDiv) {
+            console.error("L'élément modelOptions n'existe pas dans le DOM");
+            return;
+        }
+        modelOptionsDiv.innerHTML = ''; // Vider les options précédentes
 
-// Fonction utilitaire pour parser les valeurs en fonction du type
-function parseInputValue(value, type) {
-    if (type === 'integer') {
-        return parseInt(value);
-    } else if (type === 'number') {
-        return parseFloat(value);
-    } else if (type === 'boolean') {
-        return value === true || value === 'on';
-    } else {
-        return value;
+        const options = MODEL_INPUTS[model];
+        if (!options) {
+            console.error(`Aucune option trouvée pour le modèle ${model}`);
+            return;
+        }
+
+        console.log(`Mise à jour des options pour le modèle: ${model}`);
+
+        options.forEach(option => {
+            let inputElement;
+            const labelElement = document.createElement('label');
+            labelElement.setAttribute('for', option.name);
+            labelElement.setAttribute('data-i18n', option.label);
+            labelElement.textContent = `${translations[currentLanguage][option.label] || option.label}: `;
+
+            if (option.name === 'seed') {
+				// Traitement spécial pour l'option 'seed'
+				labelElement.textContent = `${translations[currentLanguage][option.label] || option.label}: (0 à 4294967295) Random=0 `;
+				
+				const seedContainer = document.createElement('div');
+				seedContainer.classList.add('seed-container'); // Utilise la nouvelle classe CSS
+
+				// Création du slider de seed
+				const seedSlider = document.createElement('input');
+				seedSlider.type = 'range';
+				seedSlider.id = 'seed_slider'; // ID unique pour le slider
+				seedSlider.min = 0;
+				seedSlider.max = 4294967295;
+				seedSlider.step = 1;
+				seedSlider.value = option.default || 0;
+
+				// Création de la boîte de texte pour la seed
+				const seedTextBox = document.createElement('input');
+				seedTextBox.type = 'number';
+				seedTextBox.min = 0;
+				seedTextBox.max = 4294967295;
+				seedTextBox.step = 1;
+				seedTextBox.value = seedSlider.value;
+				seedTextBox.id = 'seed_textbox'; // ID unique pour la boîte de texte
+				seedTextBox.name = 'seed'; // Nom pour l'envoi dans le formulaire
+
+				// Synchronisation entre le slider et la boîte de texte
+				seedSlider.addEventListener('input', function() {
+					seedTextBox.value = this.value;
+				});
+
+				seedTextBox.addEventListener('input', function() {
+					seedSlider.value = this.value;
+				});
+
+				// Ajout du slider et de la boîte de texte au container
+				seedContainer.appendChild(seedSlider);
+				seedContainer.appendChild(seedTextBox);
+
+				// Création du bouton "Sauvegarder Seed"
+				const saveSeedBtn = document.createElement('button');
+				saveSeedBtn.type = 'button';
+				saveSeedBtn.id = 'save_seed_btn';
+				saveSeedBtn.textContent = translations[currentLanguage].save_seed_btn || 'Sauvegarder Seed';
+				saveSeedBtn.style.marginTop = '10px'; // Espace au-dessus du bouton
+
+				// Ajout du bouton au container
+				seedContainer.appendChild(saveSeedBtn);
+
+				// Ajout de l'écouteur d'événement pour le bouton de sauvegarde
+				saveSeedBtn.addEventListener('click', async () => {
+					const seedValue = seedTextBox.value;
+					await saveSeedManually(seedValue);
+				});
+
+				// Ajout du label et du container au div des options du modèle
+				modelOptionsDiv.appendChild(labelElement);
+				modelOptionsDiv.appendChild(seedContainer);
+			} else {
+                switch (option.type) {
+                    case 'integer':
+                    case 'number':
+                        // Création d'un slider avec un champ texte pour les nombres
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'range';
+                        inputElement.name = option.name;
+                        inputElement.id = option.name;
+                        inputElement.min = option.min;
+                        inputElement.max = option.max;
+                        inputElement.step = option.step || 1;
+                        inputElement.value = option.default || 0;
+                        inputElement.style.width = '80%'; // Slider prend 80% de la largeur
+
+                        const valueDisplay = document.createElement('span');
+                        valueDisplay.id = `${option.name}_value`;
+                        valueDisplay.textContent = inputElement.value;
+                        valueDisplay.style.color = 'white';
+                        valueDisplay.style.marginLeft = '10px';
+
+                        const container = document.createElement('div');
+                        container.classList.add('slider-container');
+
+                        const textBox = document.createElement('input');
+                        textBox.type = 'number';
+                        textBox.style.color = 'white';
+                        textBox.min = option.min;
+                        textBox.max = option.max;
+                        textBox.step = option.step || 1;
+                        textBox.value = inputElement.value;
+                        textBox.style.width = '15%'; // Champ texte prend 15% de la largeur
+
+                        // Synchronisation entre le slider et le champ texte
+                        inputElement.addEventListener('input', function () {
+                            textBox.value = this.value;
+                            valueDisplay.textContent = this.value;
+                        });
+
+                        textBox.addEventListener('input', function () {
+                            inputElement.value = this.value;
+                            valueDisplay.textContent = this.value;
+                        });
+
+                        container.appendChild(inputElement);
+                        container.appendChild(textBox);
+                        container.appendChild(valueDisplay);
+                        modelOptionsDiv.appendChild(labelElement);
+                        modelOptionsDiv.appendChild(container);
+                        break;
+
+                    case 'boolean':
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'checkbox';
+                        inputElement.name = option.name;
+                        inputElement.id = option.name;
+                        inputElement.checked = option.default || false;
+
+                        const checkboxContainer = document.createElement('div');
+                        checkboxContainer.style.display = 'flex';
+                        checkboxContainer.style.alignItems = 'center';
+                        checkboxContainer.style.marginBottom = '10px';
+
+                        // Alignement du checkbox à droite du label
+                        checkboxContainer.appendChild(labelElement);
+                        checkboxContainer.appendChild(inputElement);
+
+                        modelOptionsDiv.appendChild(checkboxContainer);
+                        break;
+
+                    case 'enum':
+                        inputElement = document.createElement('select');
+                        inputElement.name = option.name;
+                        inputElement.id = option.name;
+                        option.options.forEach(opt => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = opt;
+                            optionElement.setAttribute('data-i18n', opt);
+                            optionElement.textContent = translations[currentLanguage][opt] || opt;
+                            inputElement.appendChild(optionElement);
+                        });
+                        inputElement.value = option.default || option.options[0];
+                        inputElement.style.width = '80%'; // Select prend 80% de la largeur
+
+                        const selectContainer = document.createElement('div');
+                        selectContainer.classList.add('slider-container');
+
+                        // Alignement du select à droite du label
+                        selectContainer.appendChild(labelElement);
+                        selectContainer.appendChild(inputElement);
+                        modelOptionsDiv.appendChild(selectContainer);
+                        break;
+
+                    case 'string':
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'text';
+                        inputElement.name = option.name;
+                        inputElement.id = option.name;
+                        inputElement.value = option.default || '';
+                        inputElement.style.width = '80%'; // Champ texte prend 80% de la largeur
+
+                        const stringContainer = document.createElement('div');
+                        stringContainer.classList.add('slider-container');
+
+                        // Alignement du champ texte à droite du label
+                        stringContainer.appendChild(labelElement);
+                        stringContainer.appendChild(inputElement);
+                        modelOptionsDiv.appendChild(stringContainer);
+                        break;
+                }
+            }
+
+            // Gestion spéciale pour l'option 'extra_lora'
+            if (option.name === 'extra_lora') {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = '?';
+
+                const tooltipText = document.createElement('span');
+                tooltipText.className = 'tooltiptext';
+                tooltipText.innerHTML = `
+                    Formats de liens pour les LoRA :
+                    <br> Replicate : owner/model-name
+                    <br> HuggingFace : huggingface.co/owner/model-name
+                    <br> CivitAI : civitai.com/models/&lt;id&gt;/&lt;model-name&gt;
+                    <br> Autres : URL direct vers .safetensors
+                `;
+                tooltip.appendChild(tooltipText);
+                labelElement.appendChild(tooltip);
+            }
+        });
     }
+
+    // Fonction utilitaire pour parser les valeurs en fonction du type
+    function parseInputValue(value, type) {
+        if (type === 'integer') {
+            return parseInt(value);
+        } else if (type === 'number') {
+            return parseFloat(value);
+        } else if (type === 'boolean') {
+            return value === true || value === 'on';
+        } else {
+            return value;
+        }
+    }
+
+    // Fonction pour vérifier et traiter les dimensions personnalisées
+    function validateCustomDimensions(aspect_ratio, formData, loadingDiv, input) {
+        if (aspect_ratio === 'custom') {
+            const width = formData.get('width');
+            const height = formData.get('height');
+
+            if (!width || !height || isNaN(width) || isNaN(height) || width < 256 || height < 256 || width > 1440 || height > 1440) {
+                alert(translations[currentLanguage].save_error_alert || 'Veuillez entrer des dimensions valides pour la largeur et la hauteur (256-1440).');
+                if (loadingDiv) {
+                    loadingDiv.style.display = 'none'; // Masquer le chargement en cas d'erreur
+                }
+                return false; // Indique que la validation a échoué
+            }
+
+            input['width'] = parseInt(width);
+            input['height'] = parseInt(height);
+        }
+
+        return true; // Validation réussie
+    }
+	
+	// Fonction pour sauvegarder manuellement la seed
+		async function saveSeedManually(seedValue) {
+			if (seedValue === '' || isNaN(seedValue) || seedValue < 0 || seedValue > 4294967295) {
+				alert(translations[currentLanguage].save_error_alert || 'Veuillez entrer une seed valide (0 à 4294967295).');
+				return;
+			}
+
+			try {
+				// Sauvegarder la seed via IPC
+				const result = await window.electronAPI.saveSeed(seedValue);
+				if (result.success) {
+					alert(translations[currentLanguage].save_seed_alert);
+					loadSavedSeeds();
+				} else {
+					throw new Error('Failed to save seed');
+				}
+			} catch (error) {
+				console.error('Erreur lors de la sauvegarde de la seed:', error);
+				alert(translations[currentLanguage].save_error_alert || 'Erreur lors de la sauvegarde de la seed.');
+			}
 }
 
-// Gestion de la soumission du formulaire
+
+	
+    // Dans la gestion de la soumission du formulaire
 document.getElementById('imageForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -1240,106 +1245,62 @@ document.getElementById('imageForm').addEventListener('submit', async function (
     const aspect_ratio = formData.get('aspect_ratio');
     const input = {}; // Stocker les valeurs d'entrée
 
-    // Gestion des options spécifiques au modèle sélectionné
-    const options = MODEL_INPUTS[model];
-    options.forEach(option => {
-        let value;
-        if (option.type === 'boolean') {
-            value = formData.get(option.name) === 'on' || formData.get(option.name) === true;
-        } else {
-            value = formData.get(option.name);
-        }
+    // Ajout du prompt à l'objet input
+	if (prompt && prompt.trim() !== '') {
+		input['prompt'] = prompt.trim();
+	} else {
+		alert(translations[currentLanguage].save_error_alert || 'Veuillez entrer un prompt.');
+		loadingDiv.style.display = 'none';
+		return;
+	}
 
-        if (value !== null && value !== undefined && value !== '') {
-            if (model === 'flux-mjv3' && option.name === 'sub_model') {
-                input['model'] = parseInputValue(value, option.type);
-            } else {
-                input[option.name] = parseInputValue(value, option.type);
-            }
-        }
-    });
+	// Récupérer l'état du checkbox de sécurité
+	const disableSafetyCheckerElement = document.getElementById('disable_safety_checker');
+	const disableSafetyChecker = disableSafetyCheckerElement ? disableSafetyCheckerElement.checked : false;
+	input['disable_safety_checker'] = disableSafetyChecker;
 
-    // Gestion de l'aspect ratio personnalisé
-    if (aspect_ratio === 'custom') {
-        const width = formData.get('width');
-        const height = formData.get('height');
+	// Gestion des options spécifiques au modèle sélectionné
+	const options = MODEL_INPUTS[model];
+	if (!options) {
+		alert(`Aucune option trouvée pour le modèle sélectionné: ${model}`);
+		loadingDiv.style.display = 'none';
+		return;
+	}
 
-        // Validation des dimensions
-        if (!width || !height || isNaN(width) || isNaN(height) || width < 256 || height < 256 || width > 1440 || height > 1440) {
-            alert('Veuillez entrer des dimensions valides pour la largeur et la hauteur (256-1440).');
-            loadingDiv.style.display = 'none';
-            return;
-        }
+	options.forEach(option => {
+		let value;
+		if (option.type === 'boolean') {
+			value = formData.get(option.name) === 'on' || formData.get(option.name) === true;
+		} else {
+			value = formData.get(option.name);
+		}
 
-        // Ajouter les dimensions personnalisées dans l'input
-        input['width'] = parseInt(width);
-        input['height'] = parseInt(height);
-    } else {
-        input['aspect_ratio'] = aspect_ratio; // Utiliser l'aspect ratio sélectionné
-    }
+		if (value !== null && value !== undefined && value !== '') {
+			if (model === 'flux-mjv3' && option.name === 'sub_model') {
+				input['model'] = parseInputValue(value, option.type);
+			} else {
+				input[option.name] = parseInputValue(value, option.type);
+			}
+		}
+	});
 
-    // Envoi des données à l'API ou autre traitement...
+	// Gestion de l'aspect ratio personnalisé
+	const isValidDimensions = validateCustomDimensions(aspect_ratio, formData, loadingDiv, input);
+	if (!isValidDimensions) {
+		return; // Arrêter le traitement en cas de dimensions invalides
+	}
+
+    const dataToSend = {
+        model: model,
+        input: input
+    };
+
+    console.log('Données envoyées à l\'API via IPC:', JSON.stringify(dataToSend, null, 2));
+
+    // Fonction asynchrone pour envoyer les données
     try {
         if (controller) {
             controller.abort(); // Annuler les requêtes précédentes si nécessaire
-        }
-        controller = new AbortController();
-
-        // Exemple de fonction fictive qui envoie les données
-        await window.electronAPI.runReplicateModel({ model, input });
-    } catch (error) {
-        console.error('Erreur lors de l\'envoi des données:', error);
-        loadingDiv.style.display = 'none';
-        outputDiv.innerHTML = `<p style="color: red;">Erreur: ${error.message}</p>`;
-    }
-});
-
-// Gestion de l'aspect ratio personnalisé dans les inputs
-function handleCustomAspectRatio(aspect_ratio, formData, loadingDiv, outputDiv, input) {
-    if (aspect_ratio === 'custom') {
-        const width = formData.get('width');
-        const height = formData.get('height');
-        if (width && height) {
-            input['width'] = parseInt(width);
-            input['height'] = parseInt(height);
-        } else {
-            alert('Veuillez spécifier la largeur et la hauteur pour l\'aspect ratio personnalisé.');
-            if (loadingDiv && outputDiv) {
-                loadingDiv.style.display = 'none';
-            }
-            throw new Error('Invalid custom dimensions');  // Utilisation de `throw` pour signaler une erreur
-        }
-    }
-}
-
-	// Utilisation de la fonction avec try-catch
-	try {
-		handleCustomAspectRatio(aspect_ratio, formData, loadingDiv, outputDiv, input);
-		// Continuer le traitement après validation
-	} catch (error) {
-		console.error('Erreur:', error.message);
-		// Gestion de l'erreur, on arrête le traitement ici
-	}
-
-
-
-	// Gestion de la seed avec Mersenne Twister
-	if (!input['seed']) {
-		const mt = new MersenneTwister(); // Initialise le générateur avec l'heure actuelle
-		input['seed'] = mt.genrand_int32(); // Génère une seed aléatoire
-	}
-
-	const dataToSend = {
-		model: model,
-		input: input
-	};
-
-	async function sendModelData(dataToSend, loadingDiv, outputDiv) {
-    console.log('Données envoyées à l\'API via IPC:', JSON.stringify(dataToSend, null, 2));
-
-    try {
-        if (controller) {
-            controller.abort(); // Annuler toute requête précédente si nécessaire
         }
         controller = new AbortController();
 
@@ -1349,64 +1310,338 @@ function handleCustomAspectRatio(aspect_ratio, formData, loadingDiv, outputDiv, 
         console.error('Erreur lors de l\'envoi des données:', error);
         if (loadingDiv && outputDiv) {
             loadingDiv.style.display = 'none';
-            outputDiv.innerHTML = `<p style="color: red;">Erreur: ${error.message}</p>`;
+            outputDiv.innerHTML = `<p style="color: red;">${translations[currentLanguage].generation_error || 'Erreur'}: ${error.message}</p>`;
         }
     }
-}
-
-// Appelle la fonction asynchrone pour envoyer les données
-sendModelData(dataToSend, loadingDiv, outputDiv);
+});
 
 
+    // Fonction pour sauvegarder le token API avec fonctionnalité toggle (Save/Edit)
+    document.getElementById('saveApiTokenBtn').addEventListener('click', async function () {
+        const apiTokenInput = document.getElementById('apiToken');
+        const button = this;
 
-		
-		 // Sauvegarder le token API
-		document.getElementById('saveApiTokenBtn').addEventListener('click', async function () {
-			const token = document.getElementById('apiToken').value;
-			if (token) {
-				try {
-					await window.electronAPI.setApiToken(token); // Sauvegarder le token via l'API
-					alert(translations[currentLanguage].save_token_alert); // Utiliser la traduction
-				} catch (error) {
-					console.error('Erreur lors de la sauvegarde du token:', error);
-					alert(translations[currentLanguage].save_error_alert); // Utiliser la traduction
-				}
-			} else {
-				alert(translations[currentLanguage].save_error_alert); // Utiliser la traduction
+        if (!apiToken) {
+            // Mode "Save Token"
+            const token = apiTokenInput.value.trim();
+
+            // Validation du format du token API
+            const tokenRegex = /^r8_[A-Za-z0-9]{16,}$/;
+            if (!tokenRegex.test(token)) {
+                alert(translations[currentLanguage].save_error_alert);
+                return;
+            }
+
+            if (token) {
+                try {
+                    const result = await window.electronAPI.setApiToken(token); // Sauvegarder le token via l'API
+                    if (result.success) {
+                        apiToken = token; // Mettre à jour la variable apiToken
+                        apiTokenInput.value = '****'; // Masquer le token
+                        apiTokenInput.type = 'password';
+                        apiTokenInput.readOnly = true;
+                        alert(translations[currentLanguage].save_token_alert);
+                        button.textContent = translations[currentLanguage].edit_token_btn; // Changer le texte du bouton
+                    } else {
+                        throw new Error('Failed to save token');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la sauvegarde du token:', error);
+                    alert(translations[currentLanguage].save_error_alert);
+                }
+            } else {
+                alert(translations[currentLanguage].save_error_alert);
+            }
+        } else {
+            // Mode "Edit Token"
+            apiTokenInput.value = '';
+            apiTokenInput.type = 'text';
+            apiTokenInput.readOnly = false;
+            apiToken = ''; // Réinitialiser la variable apiToken
+            button.textContent = translations[currentLanguage].save_token_btn; // Revenir au texte "Save Token"
+        }
+    });
+
+    // Fonction pour sauvegarder un nouveau Prompt
+    document.getElementById('save_prompt_btn').addEventListener('click', async function (e) {
+        e.preventDefault(); // Empêcher le rechargement de la page
+        const prompt = document.getElementById('prompt').value.trim();
+        if (prompt) {
+            try {
+                await window.electronAPI.savePrompt(prompt);
+                alert(translations[currentLanguage].save_prompt_alert || 'Prompt sauvegardé avec succès.');
+                loadSavedPrompts();
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde du prompt:', error);
+                alert(translations[currentLanguage].save_error_alert || 'Erreur lors de la sauvegarde du prompt.');
+            }
+        } else {
+            alert(translations[currentLanguage].save_error_alert || 'Erreur lors de la sauvegarde du prompt.');
+        }
+    });
+
+    // Fonction pour sauvegarder un nouveau Lora Link
+    document.getElementById('save_lora_link_btn').addEventListener('click', async function (e) {
+        e.preventDefault(); // Empêcher le rechargement de la page
+        const loraLink = document.getElementById('extra_lora').value.trim();
+        if (loraLink) {
+            try {
+                await window.electronAPI.saveLoraLink(loraLink);
+                alert(translations[currentLanguage].lora_link_saved_alert || 'Lien Lora sauvegardé avec succès.');
+                loadSavedLoraLinks();
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde du lien Lora:', error);
+                alert(translations[currentLanguage].save_error_alert || 'Erreur lors de la sauvegarde du lien Lora.');
+            }
+        } else {
+            alert(translations[currentLanguage].save_error_alert || 'Erreur lors de la sauvegarde du lien Lora.');
+        }
+    });
+
+    // Fonctions pour gérer les Prompts sauvegardés
+    async function loadSavedPrompts() {
+        try {
+            const prompts = await window.electronAPI.getPrompts();
+            const promptsList = document.getElementById('savedPromptsList');
+
+            promptsList.innerHTML = ''; // Vider la liste existante
+
+            prompts.forEach(prompt => {
+                const promptItem = document.createElement('li');
+                promptItem.textContent = prompt.prompt;
+                promptItem.style.cursor = 'pointer';
+                promptItem.style.color = 'blue';
+                promptItem.style.textDecoration = 'underline';
+                promptItem.setAttribute('data-id', prompt.id);
+
+                // Ajouter un écouteur pour remplir le prompt lorsqu'on clique dessus
+                promptItem.addEventListener('click', () => {
+                    document.getElementById('prompt').value = prompt.prompt;
+                });
+
+                // Ajouter un bouton pour supprimer le prompt
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.backgroundColor = 'red';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.borderRadius = '50%';
+                deleteBtn.style.width = '20px';
+                deleteBtn.style.height = '20px';
+                deleteBtn.style.textAlign = 'center';
+                deleteBtn.style.lineHeight = '18px';
+                deleteBtn.style.fontSize = '12px';
+
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // Empêcher l'événement de clic de se propager
+                    const confirmDelete = confirm(translations[currentLanguage].prompt_delete_confirm);
+                    if (confirmDelete) {
+                        try {
+                            const result = await window.electronAPI.deletePrompt(prompt.id);
+                            if (result.success) {
+                                loadSavedPrompts(); // Recharger la liste
+                            } else {
+                                alert(translations[currentLanguage].prompt_delete_error_alert || 'Erreur lors de la suppression du prompt.');
+                            }
+                        } catch (error) {
+                            console.error('Erreur lors de la suppression du prompt:', error);
+                            alert(translations[currentLanguage].prompt_delete_error_alert || 'Erreur lors de la suppression du prompt.');
+                        }
+                    }
+                });
+
+                promptItem.appendChild(deleteBtn);
+                promptsList.appendChild(promptItem);
+            });
+        } catch (error) {
+            console.error('Erreur lors du chargement des prompts:', error);
+            alert(translations[currentLanguage].save_error_alert || 'Erreur lors du chargement des prompts.');
+        }
+    }
+
+    // Fonctions pour gérer les Lora Links sauvegardés
+    async function loadSavedLoraLinks() {
+        try {
+            const loraLinks = await window.electronAPI.getLoraLinks();
+            const loraLinksList = document.getElementById('savedLoraLinksList');
+
+            loraLinksList.innerHTML = ''; // Vider la liste existante
+
+            loraLinks.forEach(link => {
+                const linkItem = document.createElement('li');
+                linkItem.textContent = link.link;
+                linkItem.style.cursor = 'pointer';
+                linkItem.style.color = 'blue';
+                linkItem.style.textDecoration = 'underline';
+                linkItem.setAttribute('data-id', link.id);
+
+                // Ajouter un écouteur pour remplir le Lora link lorsqu'on clique dessus
+                linkItem.addEventListener('click', () => {
+                    document.getElementById('extra_lora').value = link.link;
+                });
+
+                // Ajouter un bouton pour supprimer le lora link
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.backgroundColor = 'red';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.borderRadius = '50%';
+                deleteBtn.style.width = '20px';
+                deleteBtn.style.height = '20px';
+                deleteBtn.style.textAlign = 'center';
+                deleteBtn.style.lineHeight = '18px';
+                deleteBtn.style.fontSize = '12px';
+
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // Empêcher l'événement de clic de se propager
+                    const confirmDelete = confirm(translations[currentLanguage].lora_delete_confirm);
+                    if (confirmDelete) {
+                        try {
+                            const result = await window.electronAPI.deleteLoraLink(link.id);
+                            if (result.success) {
+                                loadSavedLoraLinks(); // Recharger la liste
+                            } else {
+                                alert(translations[currentLanguage].lora_delete_error_alert || 'Erreur lors de la suppression du lien Lora.');
+                            }
+                        } catch (error) {
+                            console.error('Erreur lors de la suppression du lien Lora:', error);
+                            alert(translations[currentLanguage].lora_delete_error_alert || 'Erreur lors de la suppression du lien Lora.');
+                        }
+                    }
+                });
+
+                linkItem.appendChild(deleteBtn);
+                loraLinksList.appendChild(linkItem);
+            });
+        } catch (error) {
+            console.error('Erreur lors du chargement des liens Lora:', error);
+            alert(translations[currentLanguage].save_error_alert || 'Erreur lors du chargement des liens Lora.');
+        }
+    }
+
+    // Fonctions pour gérer les Seeds sauvegardés
+		async function loadSavedSeeds() {
+		try {
+			const seeds = await window.electronAPI.getSeeds() || [];
+
+			const seedsList = document.getElementById('savedSeedsList'); // Assurez-vous d'avoir une liste dans votre HTML avec cet ID
+
+			if (!seedsList) {
+				console.error('Élément #savedSeedsList introuvable dans le DOM.');
+				return;
 			}
-		});
 
+			seedsList.innerHTML = ''; // Vider la liste existante
 
-   // Réception des réponses de Replicate
-	window.electronAPI.receive('replicate-response', (data) => {
-		const loadingDiv = document.getElementById('loading');
-		const outputDiv = document.getElementById('output');
+			seeds.forEach(seed => {
+				const seedItem = document.createElement('li');
+				seedItem.textContent = seed.value;
+				seedItem.style.cursor = 'pointer';
+				seedItem.style.color = 'blue';
+				seedItem.style.textDecoration = 'underline';
+				seedItem.setAttribute('data-id', seed.id);
 
-		if (loadingDiv) {
-			loadingDiv.style.display = 'none';
-		}
-
-		if (data.error) {
-			if (outputDiv) {
-				outputDiv.innerHTML = `<p style="color: red;">Erreur: ${data.error}</p>`;
-			}
-		} else if (data.output) {
-			if (outputDiv) {
-				outputDiv.innerHTML = '';
-				const outputs = Array.isArray(data.output) ? data.output : [data.output];
-				outputs.forEach((imageUrl, index) => {
-					outputDiv.innerHTML += `<p>Seed: ${data.seed || 'Non spécifiée'}</p><img src="${imageUrl}" alt="Generated image ${index + 1}" id="image_${index + 1}">`;
+				// Ajouter un écouteur pour remplir le seed lorsqu'on clique dessus
+				seedItem.addEventListener('click', () => {
+					const seedSlider = document.getElementById('seed_slider');
+					const seedTextBox = document.getElementById('seed_textbox');
+					if (seedSlider && seedTextBox) {
+						seedSlider.value = seed.value;
+						seedTextBox.value = seed.value;
+					}
 				});
-			}
-		} else {
-			if (outputDiv) {
-				outputDiv.innerHTML = '<p style="color: red;">Erreur inconnue. Veuillez réessayer.</p>';
-			}
+
+				// Ajouter un bouton pour supprimer la seed
+				const deleteBtn = document.createElement('button');
+				deleteBtn.textContent = 'X';
+				deleteBtn.style.marginLeft = '10px';
+				deleteBtn.style.cursor = 'pointer';
+				deleteBtn.style.backgroundColor = 'red';
+				deleteBtn.style.color = 'white';
+				deleteBtn.style.border = 'none';
+				deleteBtn.style.borderRadius = '50%';
+				deleteBtn.style.width = '20px';
+				deleteBtn.style.height = '20px';
+				deleteBtn.style.textAlign = 'center';
+				deleteBtn.style.lineHeight = '18px';
+				deleteBtn.style.fontSize = '12px';
+
+				deleteBtn.addEventListener('click', async (e) => {
+					e.stopPropagation(); // Empêcher l'événement de clic de se propager
+					const confirmDelete = confirm(translations[currentLanguage].seed_delete_confirm);
+					if (confirmDelete) {
+						try {
+							const result = await window.electronAPI.deleteSeed(seed.id);
+							if (result.success) {
+								loadSavedSeeds(); // Recharger la liste
+							} else {
+								alert(translations[currentLanguage].seed_delete_error_alert || 'Erreur lors de la suppression de la seed.');
+							}
+						} catch (error) {
+							console.error('Erreur lors de la suppression de la seed:', error);
+							alert(translations[currentLanguage].seed_delete_error_alert || 'Erreur lors de la suppression de la seed.');
+						}
+					}
+				});
+
+				seedItem.appendChild(deleteBtn);
+				seedsList.appendChild(seedItem);
+			});
+		} catch (error) {
+			console.error('Erreur lors du chargement des seeds:', error);
+			alert(translations[currentLanguage].save_error_alert || 'Erreur lors du chargement des seeds.');
 		}
-	});
+	}
 
+    
 
+    // Réception des réponses de Replicate
+    window.electronAPI.receive('replicate-response', (data) => {
+        const loadingDiv = document.getElementById('loading');
+        const outputDiv = document.getElementById('output');
 
+        if (loadingDiv) {
+            loadingDiv.style.display = 'none';
+        }
+
+        if (data.error) {
+            if (outputDiv) {
+                outputDiv.innerHTML = `<p style="color: red;">${translations[currentLanguage].generation_error}: ${data.error}</p>`;
+            }
+        } else if (data.output) {
+            if (outputDiv) {
+                outputDiv.innerHTML = '';
+                const outputs = Array.isArray(data.output) ? data.output : [data.output];
+                outputs.forEach((imageUrl, index) => {
+                    const seedText = data.seed ? `${translations[currentLanguage].seed_label} ${data.seed}` : `${translations[currentLanguage].seed_label} Non spécifiée`;
+                    const imageElement = document.createElement('img');
+                    imageElement.src = imageUrl;
+                    imageElement.alt = `Generated image ${index + 1}`;
+                    imageElement.id = `image_${index + 1}`;
+                    imageElement.style.maxWidth = '100%';
+                    imageElement.style.marginBottom = '10px';
+
+                    const seedParagraph = document.createElement('p');
+                    seedParagraph.textContent = seedText;
+                    seedParagraph.style.color = 'white';
+
+                    outputDiv.appendChild(seedParagraph);
+                    outputDiv.appendChild(imageElement);
+                });
+            }
+        } else {
+            if (outputDiv) {
+                outputDiv.innerHTML = `<p style="color: red;">${translations[currentLanguage].generation_error}</p>`;
+            }
+        }
+    });
+
+    // Fonction utilitaire pour obtenir l'extension à partir de l'URL
     function getExtensionFromUrl(url) {
         try {
             const parsedUrl = new URL(url);
@@ -1418,13 +1653,15 @@ sendModelData(dataToSend, loadingDiv, outputDiv);
         }
     }
 
+    // Fonction pour générer un nom de fichier
     function generateFilename() {
         const model = document.getElementById('model').value;
         const prompt = document.getElementById('prompt').value;
+        const outputFormat = document.getElementById('output_format') ? document.getElementById('output_format').value : 'png';
         const date = new Date();
         const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}-${date.getHours().toString().padStart(2, '0')}-${date.getMinutes().toString().padStart(2, '0')}`;
-        const promptPart = prompt.slice(-20);
-        return `${model}-${dateString}-${promptPart}.png`;
+        const promptPart = prompt.slice(0, 20).replace(/\s+/g, '_'); // Limite à 20 caractères et remplace les espaces par des underscores
+        return `${model}-${dateString}-${promptPart}.${outputFormat}`;
     }
 
     // Fonction du bouton "Télécharger"
@@ -1477,11 +1714,10 @@ sendModelData(dataToSend, loadingDiv, outputDiv);
             const loadingDiv = document.getElementById('loading');
             const outputDiv = document.getElementById('output');
             if (loadingDiv) loadingDiv.style.display = 'none';
-            if (outputDiv) outputDiv.innerHTML = '<p>Génération stoppée.</p>';
+            if (outputDiv) outputDiv.innerHTML = `<p>${translations[currentLanguage].stop_btn}</p>`;
         }
     });
 </script>
 
 </body>
-
 </html>
