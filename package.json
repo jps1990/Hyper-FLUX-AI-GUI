@@ -1,0 +1,23 @@
+{
+  "name": "replicateelectronapp",
+  "version": "1.0.0",
+  "description": "WebUI pour Hyper FLUX avec Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "package": "electron-packager . replicateelectronapp --platform=win32,darwin,linux --arch=x64 --out=dist --overwrite"
+  },
+  "author": "JP Sunboom",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^10.0.0",
+    "electron": "^32.1.2",
+    "replicate": "^0.34.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.0.5",
+    "electron-packager": "^17.1.2"
+  }
+}
