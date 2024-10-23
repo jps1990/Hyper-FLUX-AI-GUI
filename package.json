@@ -14,7 +14,7 @@
     "axios": "^1.7.7",
     "dotenv": "^10.0.0",
     "mersenne-twister": "^1.1.0",
-    "replicate": "^0.34.0",
+    "replicate": "^0.34.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
