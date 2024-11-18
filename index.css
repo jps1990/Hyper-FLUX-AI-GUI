@@ -1,0 +1,619 @@
+/* Importation de la police Orbitron depuis Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    
+/* Variables pour les couleurs */
+:root {
+    --primary-color: #8A2BE2;
+    --secondary-color: #4B0082;
+    --accent-color: #00FFFF;
+    --background-color: #0A0A0A;
+    --text-color: #E0E0E0;
+    --hover-glow: rgba(0, 255, 255, 0.5); /* Glow cyan */
+}
+
+body {
+    font-family: 'Orbitron', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.2) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(75, 0, 130, 0.2) 0%, transparent 20%);
+    background-attachment: fixed;
+}
+
+h1 {
+    color: var(--accent-color);
+    text-align: center;
+    font-size: 3em;
+    text-shadow: 0 0 10px var(--accent-color);
+    margin-top: 20px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    background-color: rgba(10, 10, 10, 0.8);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.input-section {
+    flex: 1;
+    max-width: 600px;
+}
+
+.output-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative; /* For positioning loading */
+}
+
+label {
+    display: block;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    width: 95%; /* Largeur du label */
+}
+
+p {
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+/* Style pour les boîtes de texte et select avec effet de glow au survol */
+input,
+select,
+button,
+textarea {
+    width: 95%; /* Alignement des champs */
+    padding: 10px;
+    margin-top: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--secondary-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+
+/* Style pour les boîtes de texte et select avec effet de glow au survol */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="email"],
+select,
+button,
+textarea {
+width: 95%; /* Alignement des champs */
+padding: 10px;
+margin-top: 5px;
+background-color: rgba(255, 255, 255, 0.1);
+border: 2px solid var(--secondary-color);
+border-radius: 6px;
+color: var(--text-color);
+transition: all 0.3s ease;
+}
+
+/* Styles de focus pour les éléments de formulaire */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+select:focus,
+textarea:focus {
+border-color: var(--accent-color);
+box-shadow: 0 0 15px var(--hover-glow);
+}
+
+/* Styles spécifiques pour la case à cocher */
+input[type="checkbox"] {
+appearance: none;
+-webkit-appearance: none;
+background-color: var(--background-color); /* Fond noir */
+border: 2px solid var(--primary-color);    /* Bordure mauve */
+width: 20px;
+height: 20px;
+border-radius: 4px; /* Coins légèrement arrondis */
+position: relative;
+cursor: pointer;
+margin-top: 5px;
+outline: none; /* Supprime le contour au focus */
+transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Glow au survol */
+input[type="checkbox"]:hover {
+box-shadow: 0 0 15px var(--primary-color);
+}
+
+/* Glow au focus */
+input[type="checkbox"]:focus {
+box-shadow: 0 0 15px var(--primary-color);
+}
+
+/* Style lorsque la case est cochée */
+input[type="checkbox"]:checked {
+background-color: var(--primary-color); /* Fond mauve lorsqu'elle est cochée */
+border-color: var(--primary-color);     /* Bordure mauve */
+}
+
+/* Coche personnalisée */
+input[type="checkbox"]:checked::after {
+content: '';
+position: absolute;
+top: 2px;
+left: 6px;
+width: 4px;
+height: 8px;
+border: solid var(--background-color); /* Coche de couleur noire */
+border-width: 0 2px 2px 0;
+transform: rotate(45deg);
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--hover-glow);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    max-height: 400px;
+}
+
+/* Faders (sliders) personnalisés */
+.slider-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.slider-container input[type="range"] {
+    width: 80%; /* Prendre 80% de la largeur */
+    margin-right: 10px;
+}
+
+.slider-container input[type="number"] {
+    width: 15%; /* Prendre 15% de la largeur */
+    color: white;
+}
+
+/* Style pour les boutons avec glow au survol */
+button {
+    background-color: var(--primary-color); /* Change la couleur de fond en utilisant le même mauve que le texte */
+    color: var(--text-color); /* Assure que le texte des boutons reste de la même couleur que le texte global */
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 5px;
+    border: none; /* Enlève les bordures par défaut */
+    border-radius: 6px; /* Ajuste la bordure si besoin */
+    padding: 10px 20px;
+    box-shadow: 0 0 10px var(--primary-color); /* Glow mauve autour des boutons */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--accent-color); /* Effet de hover en cyan */
+    box-shadow: 0 0 15px var(--accent-color); /* Glow cyan lors du hover */
+}
+
+#output {
+    position: relative; /* Conteneur pour que le loading se place correctement */
+    width: 100%;
+    height: 70%;
+    border: 2px dashed var(--accent-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Assure que l'image reste en haut */
+    border-radius: 10px;
+    min-height: 300px;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+    /* Nouveaux styles */
+
+.seed-text {
+    position: relative; /* Change de absolute à relative */
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px; /* Ajoute un espace entre la seed et l'image */
+    z-index: 1; /* Assure que la seed est au-dessus si nécessaire */
+}
+
+.image-container {
+    position: relative; /* Assure que les éléments sont positionnés relativement */
+    display: inline-block;
+    margin: 20px;
+    margin-top: 5%; /* Ajustez ce pourcentage selon vos besoins */
+}
+
+#output {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+
+.save-seed-button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+#loading {
+    display: none;
+    position: absolute;
+    top: 20%; /* Place le loading à 20% du haut */
+    left: 50%; /* Centre horizontalement */
+    transform: translate(-50%, -25%); /* Centre le texte de chargement */
+    text-align: center;
+    z-index: 1; /* Assure que le texte soit visible par-dessus tout */
+}
+
+#loading p {
+    margin: 0;
+}
+
+
+/* Boutons de suppression dans les listes avec une couleur plus appropriée */
+#savedPromptsList li button, #savedLoraLinksList li button, #savedSeedsList li button {
+    background-color: var(--primary-color); /* Utilise la couleur primaire (mauve) */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 20px; /* Centrage vertical */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modification des couleurs des éléments de la liste pour qu'ils s'affichent en mauve */
+#savedPromptsList li a, #savedLoraLinksList li a, #savedSeedsList li a {
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--primary-color)!important; /* Texte en mauve */
+    text-decoration: none !important; /* Supprime la sous-ligne pour les éléments de liste */
+}
+
+/* Appliquer couleur mauve et supprimer l'effet par défaut des liens */
+#savedPromptsList li a, #savedLoraLinksList li a, #savedSeedsList li a {
+    color: var(--primary-color) !important; /* Forcer la couleur du lien en mauve */
+    text-decoration: none !important; /* Forcer la suppression de la sous-ligne */
+}
+
+#savedPromptsList li a:hover, #savedLoraLinksList li a:hover, #savedSeedsList li a:hover {
+    color: var(--accent-color) !important; /* Couleur du lien en cyan au survol */
+    text-decoration: none !important; /* Empêcher la sous-ligne lors du survol */
+}
+
+/* Effet hover pour les éléments de la liste */
+#savedPromptsList li:hover, #savedLoraLinksList li:hover, #savedSeedsList li:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Effet hover pour les boutons de suppression */
+#savedPromptsList li button:hover, #savedLoraLinksList li button:hover, #savedSeedsList li button:hover {
+    background-color: var(--accent-color); /* Accentuation de la couleur sur hover pour les boutons */
+}
+
+#savedPromptsList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; /* Espace entre les items */
+}
+
+#savedPromptsList li button {
+    margin-left: 10px; /* Espace entre le texte et le bouton */
+}
+
+
+/* Conteneur pour la seed et le bouton */
+.seed-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Style pour le paragraphe affichant la seed */
+.seed-text {
+    margin-right: 10px;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Style pour le bouton "Sauvegarder Seed" */
+.save-seed-button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.save-seed-button:hover {
+    background-color: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+
+.spinner {
+    border: 4px solid rgba(0, 255, 255, 0.1);
+    border-left-color: var(--accent-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+footer {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: var(--accent-color);
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 300px;
+    background-color: var(--secondary-color);
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -150px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Boutons et leur positionnement */
+.button-wrapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-start; /* Pas d'espacement forcé entre les boutons */
+    align-items: center;
+    flex-wrap: nowrap; /* Empêche les boutons de passer à la ligne suivante */
+    gap: 10px; /* Espace entre les boutons */
+    width: 95%; /* Prend 95% de la largeur du parent */
+}
+
+.button-wrapper button {
+    white-space: nowrap; /* Empêche le texte de passer à la ligne suivante */
+    padding: 10px 15px; /* Ajuste les marges intérieures des boutons */
+    font-size: 12px; /* Taille du texte */
+    cursor: pointer; /* Change le curseur au survol */
+    border: 1px solid var(--secondary-color); /* Bordure mauve foncé */
+    border-radius: 5px; /* Coins légèrement arrondis */
+    background-color: var(--primary-color); /* Mauve */
+    color: black; /* Texte noir */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transition pour l'effet de survol */
+    min-width: auto; /* Permet aux boutons de s'ajuster à la taille du texte */
+    max-width: auto; /* Permet aux boutons de s'ajuster sans limite de taille */
+}
+
+/* Style pour tous les boutons */
+button {
+    background-color: var(--primary-color); /* Fond mauve */
+    color: black; /* Texte noir */
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 5px;
+    border: none;
+    border-radius: 6px; /* Arrondi des bords */
+    padding: 10px 20px;
+    box-shadow: 0 0 10px var(--primary-color); /* Effet glow mauve */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: auto; /* Laisse le bouton s'adapter à la taille du texte */
+    max-width: 100%; /* Empêche le bouton de dépasser les limites de son conteneur */
+    white-space: nowrap; /* Empêche le texte de sauter à la ligne */
+}
+
+/* Effet de survol pour tous les boutons */
+button:hover {
+    background-color: var(--accent-color); /* Fond cyan au survol */
+    box-shadow: 0 0 15px var(--accent-color); /* Glow cyan au survol */
+    color: black; /* Texte reste noir même au survol */
+}
+
+/* Effet lors du clic sur le bouton (actif) */
+button:active {
+    background-color: #d0d0d0; /* Fond gris clair lors du clic */
+    color: black; /* Toujours du texte noir */
+}
+
+
+
+/* Seed container ajouté */
+.seed-container {
+    display: flex;
+    flex-direction: column; /* Place les éléments en colonne */
+    align-items: flex-start; /* Aligne les éléments à gauche */
+    margin-top: 10px; /* Espace au-dessus */
+}
+
+.seed-container input[type="number"] {
+    width: 95%; /* Prend toute la largeur */
+    margin-top: 5px; /* Espace au-dessus */
+}
+
+/* Remove yellow focus ring when clicking on elements */
+select:focus,
+input:focus,
+button:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* Styles pour les options du menu déroulant */
+select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--secondary-color);
+    color: var(--primary-color);
+    padding: 10px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+select:focus {
+    box-shadow: 0 0 10px var(--accent-color);
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+option {
+    background-color: var(--background-color);
+    color: var(--primary-color);
+}
+
+option:hover,
+option:focus {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+select[disabled] {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Style boutons radio */
+input[type="radio"] {
+    appearance: none;
+    background-color: var(--background-color);
+    border: 2px solid var(--secondary-color);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+input[type="radio"]:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+input[type="radio"]:hover,
+input[type="radio"]:focus {
+    background-color: var(--hover-glow);
+    border-color: var(--hover-glow);
+}
+
+/* Personnalisation des faders (sliders) */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px; /* Rendre la ligne plus large */
+    background: var(--secondary-color); /* Mauve foncé pour la ligne */
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.9; /* Opacité légèrement augmentée */
+    transition: opacity .15s ease-in-out;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+/* Curseur du fader */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px; /* Curseur plus gros */
+    height: 25px; /* Curseur plus gros */
+    background: var(--primary-color); /* Mauve clair pour le curseur */
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--accent-color); /* Glow cyan plus intense */
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 25px; /* Curseur plus gros */
+    height: 25px; /* Curseur plus gros */
+    background: var(--primary-color); /* Mauve clair pour le curseur */
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--accent-color); /* Glow cyan plus intense */
+}
+
+input[type="range"]::-ms-thumb {
+    width: 25px; /* Curseur plus gros */
+    height: 25px; /* Curseur plus gros */
+    background: var(--primary-color); /* Mauve clair pour le curseur */
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--accent-color); /* Glow cyan plus intense */
+}
